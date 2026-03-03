@@ -169,7 +169,7 @@ def make_microduck_velocity_env_cfg(
     cfg.rewards["self_collisions"] = RewardTermCfg(
         func=mdp.self_collision_cost,
         weight=-1.0,
-        params={"sensor_name": self_collision_sensor_cfg.name},
+        params={"sensor_name": self_collision_cfg.name},
     )
 
     # Body-specific reward configurations
