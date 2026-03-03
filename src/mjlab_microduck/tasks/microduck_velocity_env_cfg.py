@@ -16,7 +16,7 @@ ENABLE_BASE_ORIENTATION_RANDOMIZATION = False  # Randomize initial tilt to force
 ENABLE_NECK_OFFSET_RANDOMIZATION = True  # Random neck offsets for head-motion robustness
 
 # Neck offset randomization parameters
-NECK_OFFSET_MAX_ANGLE = 1.5 # Was 0.3
+NECK_OFFSET_MAX_ANGLE = 2.5 # Was 0.3
 NECK_OFFSET_INTERVAL_S = (2.0, 5.0)  # Sample new random target every 2–5 seconds
 
 # Observation configuration
@@ -598,7 +598,12 @@ def make_microduck_velocity_env_cfg(
                     {"step": 2500 * 24,  "max_offset": 0.9},
                     {"step": 3000 * 24,  "max_offset": 1.1},
                     {"step": 3500 * 24,  "max_offset": 1.3},
-                    {"step": 4000 * 24,  "max_offset": NECK_OFFSET_MAX_ANGLE},
+                    {"step": 4000 * 24,  "max_offset": 1.5},
+                    {"step": 4500 * 24,  "max_offset": 1.7},
+                    {"step": 5000 * 24,  "max_offset": 1.9},
+                    {"step": 5500 * 24,  "max_offset": 2.1},
+                    {"step": 6000 * 24,  "max_offset": 2.3},
+                    {"step": 6500 * 24,  "max_offset": NECK_OFFSET_MAX_ANGLE},
                 ],
             },
         )

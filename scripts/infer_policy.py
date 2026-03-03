@@ -115,7 +115,7 @@ class PolicyInference:
         self.head_mode = False
         # Offsets added on top of policy output for neck joints [neck_pitch, head_pitch, head_yaw, head_roll]
         self.head_offset = np.zeros(4, dtype=np.float32)
-        self.head_max = 1.5  # max offset per joint (rad), matches training NECK_OFFSET_MAX_ANGLE
+        self.head_max = 2.0  # max offset per joint (rad), matches training NECK_OFFSET_MAX_ANGLE
 
         # Imitation learning phase tracking
         self.imitation_phase = 0.0
@@ -334,7 +334,7 @@ class PolicyInference:
         self.head_mode = not self.head_mode
         if self.head_mode:
             print("Head mode: ON")
-            print(f"  UP/DOWN: head_pitch  |  LEFT/RIGHT: head_yaw  |  A/E: head_roll  |  SPACE: reset  (max ±{self.head_max:.2f} rad)")
+            print(f"  Z/S: neck_pitch  |  UP/DOWN: head_pitch  |  LEFT/RIGHT: head_yaw  |  A/E: head_roll  |  SPACE: reset  (max ±{self.head_max:.2f} rad)")
         else:
             print("Head mode: OFF  (arrows and A/E back to velocity control)")
 
@@ -561,25 +561,25 @@ def main():
                 if key == pynput_keyboard.Key.up:
                     if policy.head_mode:
                         policy.head_offset[1] = policy.head_max   # head_pitch up
-                        print(f"Head offset: pitch={policy.head_offset[1]:.2f} yaw={policy.head_offset[2]:.2f} roll={policy.head_offset[3]:.2f}")
+                        print(f"Head offset: neck={policy.head_offset[0]:.2f} pitch={policy.head_offset[1]:.2f} yaw={policy.head_offset[2]:.2f} roll={policy.head_offset[3]:.2f}")
                     else:
                         policy.set_command(0.5, 0.0, 0.0)
                 elif key == pynput_keyboard.Key.down:
                     if policy.head_mode:
                         policy.head_offset[1] = -policy.head_max  # head_pitch down
-                        print(f"Head offset: pitch={policy.head_offset[1]:.2f} yaw={policy.head_offset[2]:.2f} roll={policy.head_offset[3]:.2f}")
+                        print(f"Head offset: neck={policy.head_offset[0]:.2f} pitch={policy.head_offset[1]:.2f} yaw={policy.head_offset[2]:.2f} roll={policy.head_offset[3]:.2f}")
                     else:
                         policy.set_command(-0.5, 0.0, 0.0)
                 elif key == pynput_keyboard.Key.right:
                     if policy.head_mode:
                         policy.head_offset[2] = -policy.head_max  # head_yaw right
-                        print(f"Head offset: pitch={policy.head_offset[1]:.2f} yaw={policy.head_offset[2]:.2f} roll={policy.head_offset[3]:.2f}")
+                        print(f"Head offset: neck={policy.head_offset[0]:.2f} pitch={policy.head_offset[1]:.2f} yaw={policy.head_offset[2]:.2f} roll={policy.head_offset[3]:.2f}")
                     else:
                         policy.set_command(0.0, -0.5, 0.0)
                 elif key == pynput_keyboard.Key.left:
                     if policy.head_mode:
                         policy.head_offset[2] = policy.head_max   # head_yaw left
-                        print(f"Head offset: pitch={policy.head_offset[1]:.2f} yaw={policy.head_offset[2]:.2f} roll={policy.head_offset[3]:.2f}")
+                        print(f"Head offset: neck={policy.head_offset[0]:.2f} pitch={policy.head_offset[1]:.2f} yaw={policy.head_offset[2]:.2f} roll={policy.head_offset[3]:.2f}")
                     else:
                         policy.set_command(0.0, 0.5, 0.0)
                 elif key == pynput_keyboard.Key.space:
@@ -594,15 +594,23 @@ def main():
                     elif key.char == 'a' or key.char == 'A':
                         if policy.head_mode:
                             policy.head_offset[3] = policy.head_max   # head_roll
-                            print(f"Head offset: pitch={policy.head_offset[1]:.2f} yaw={policy.head_offset[2]:.2f} roll={policy.head_offset[3]:.2f}")
+                            print(f"Head offset: neck={policy.head_offset[0]:.2f} pitch={policy.head_offset[1]:.2f} yaw={policy.head_offset[2]:.2f} roll={policy.head_offset[3]:.2f}")
                         else:
                             policy.set_command(0.0, 0.0, 4.0)
                     elif key.char == 'e' or key.char == 'E':
                         if policy.head_mode:
                             policy.head_offset[3] = -policy.head_max  # head_roll
-                            print(f"Head offset: pitch={policy.head_offset[1]:.2f} yaw={policy.head_offset[2]:.2f} roll={policy.head_offset[3]:.2f}")
+                            print(f"Head offset: neck={policy.head_offset[0]:.2f} pitch={policy.head_offset[1]:.2f} yaw={policy.head_offset[2]:.2f} roll={policy.head_offset[3]:.2f}")
                         else:
                             policy.set_command(0.0, 0.0, -4.0)
+                    elif key.char == 'z' or key.char == 'Z':
+                        if policy.head_mode:
+                            policy.head_offset[0] = policy.head_max   # neck_pitch up
+                            print(f"Head offset: neck={policy.head_offset[0]:.2f} pitch={policy.head_offset[1]:.2f} yaw={policy.head_offset[2]:.2f} roll={policy.head_offset[3]:.2f}")
+                    elif key.char == 's' or key.char == 'S':
+                        if policy.head_mode:
+                            policy.head_offset[0] = -policy.head_max  # neck_pitch down
+                            print(f"Head offset: neck={policy.head_offset[0]:.2f} pitch={policy.head_offset[1]:.2f} yaw={policy.head_offset[2]:.2f} roll={policy.head_offset[3]:.2f}")
             except Exception as e:
                 print(f"Key press error: {e}")
 
@@ -616,9 +624,10 @@ def main():
         print("  A / E:           ang_vel_z ±4.0")
         print("  SPACE:           stop (all velocities = 0)")
         print("  [ Head mode — press H to toggle ]")
-        print("  UP/DOWN arrow:   head_pitch ±0.3 rad (max)")
-        print("  LEFT/RIGHT arrow: head_yaw ±0.3 rad (max)")
-        print("  A / E:           head_roll ±0.3 rad (max)")
+        print("  Z / S:           neck_pitch ±2.5 rad (max)")
+        print("  UP/DOWN arrow:   head_pitch ±2.5 rad (max)")
+        print("  LEFT/RIGHT arrow: head_yaw ±2.5 rad (max)")
+        print("  A / E:           head_roll ±2.5 rad (max)")
         print("  SPACE:           reset head offset to zero")
         print("\nNote: Keyboard listener captures keys system-wide")
 
