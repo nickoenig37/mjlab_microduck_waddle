@@ -69,11 +69,11 @@ def make_microduck_velocity_env_cfg(
         # Lower body — tighter to keep the robot in home pose when standing
         r".*hip_yaw.*": 0.1,
         r".*hip_roll.*": 0.1,
-        r".*hip_pitch.*": 0.15,
-        r".*knee.*": 0.15,
+        r".*hip_pitch.*": 0.1,
+        r".*knee.*": 0.1,
         r".*ankle.*": 0.1,
-        r".*neck.*": 0.1,
-        r".*head.*": 0.1,
+        r".*neck.*": 0.05,
+        r".*head.*": 0.05,
     }
 
     std_walking = {
