@@ -165,6 +165,12 @@ def make_microduck_velocity_env_cfg(
     cfg.rewards["pose"].params["walking_threshold"] = 0.01
     cfg.rewards["pose"].params["running_threshold"] = 0.5      # switch to running pose at 0.5 m/s
     cfg.rewards["pose"].weight = 2.0  # was 1.0
+    
+    cfg.rewards["self_collisions"] = RewardTermCfg(
+        func=mdp.self_collision_cost,
+        weight=-1.0,
+        params={"sensor_name": self_collision_sensor_cfg.name},
+    )
 
     # Body-specific reward configurations
     cfg.rewards["upright"].params["asset_cfg"].body_names = ("trunk_base",)

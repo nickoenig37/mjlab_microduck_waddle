@@ -7,7 +7,9 @@
     "max_stl_size": 1.0,
     "ignore": {
         "*": "collision",
-        "!foot_tpu_bottom": "collision"
+        "!foot_tpu_bottom": "collision",
+        "!leg_plate": "collision",
+        "!bottom_shell": "collision"
     },
     "additional_xml": [
         "joints_properties.xml",
