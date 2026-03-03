@@ -26,8 +26,10 @@ HOME_FRAME = EntityCfg.InitialStateCfg(
         r".*left_ankle.*": 0.6,
         r".*right_ankle.*": -0.6,
         # Head
-        r".*neck.*": 0.0,
-        r".*head.*": 0.0,
+        r".*neck_pitch.*": -0.5,
+        r".*head_pitch.*": 0.5,
+        r".*head_yaw.*": 0.0,
+        r".*head_roll.*": 0.0,
     },
     joint_vel={".*": 0.0},
 )
