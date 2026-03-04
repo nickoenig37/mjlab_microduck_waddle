@@ -123,7 +123,7 @@ def make_microduck_ground_pick_env_cfg(play: bool = False) -> ManagerBasedRlEnvC
     # (std=0.03 was too tight — exp(-(0.2/0.03)²)≈0, zero gradient from standing height)
     cfg.rewards["mouth_ground_proximity"] = RewardTermCfg(
         func=microduck_mdp.mouth_ground_proximity,
-        weight=4.0,
+        weight=2.0,
         params={
             "asset_cfg": SceneEntityCfg("robot", site_names=["mouth_tip"]),
             "std": 0.10,
@@ -136,9 +136,9 @@ def make_microduck_ground_pick_env_cfg(play: bool = False) -> ManagerBasedRlEnvC
     _LEG_JOINTS = [0, 1, 2, 3, 4, 9, 10, 11, 12, 13]
     cfg.rewards["ground_pick_return_pose_legs"] = RewardTermCfg(
         func=microduck_mdp.ground_pick_return_pose,
-        weight=2.0,
+        weight=4.0,
         params={
-            "std": 0.4,
+            "std": 0.3,
             "command_name": "twist",
             "joint_indices": _LEG_JOINTS,
         },
@@ -150,7 +150,7 @@ def make_microduck_ground_pick_env_cfg(play: bool = False) -> ManagerBasedRlEnvC
     _NECK_JOINTS = [5, 6, 7, 8]
     cfg.rewards["ground_pick_return_pose_neck"] = RewardTermCfg(
         func=microduck_mdp.ground_pick_return_pose,
-        weight=3.0,
+        weight=6.0,
         params={
             "std": 0.15,
             "command_name": "twist",
