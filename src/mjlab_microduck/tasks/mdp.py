@@ -894,6 +894,30 @@ def mouth_ground_proximity(
     return approach_weight * proximity
 
 
+def mouth_perpendicular_to_ground(
+    env: ManagerBasedRlEnv,
+    asset_cfg: SceneEntityCfg = SceneEntityCfg("robot", site_names=["mouth_tip"]),
+    command_name: str = "twist",
+) -> torch.Tensor:
+    """Reward the mouth tip x-axis being vertical (pointing down) during the approach phase.
+
+    A perfectly perpendicular contact gives alignment=1; horizontal gives 0; pointing up gives -1.
+    Weighted by max(0, sin(2π*phase)) so it only applies during the descent.
+    """
+    asset = env.scene[asset_cfg.name]
+    # site_xmat: (num_envs, num_sites, 3, 3) — columns are site axes in world frame
+    xmat = asset.data.site_xmat[:, asset_cfg.site_ids[0], :, :]  # (num_envs, 3, 3)
+    # x-axis of site frame in world coords = first column
+    x_axis_z = xmat[:, 2, 0]  # z-component of site x-axis
+    # dot with [0, 0, -1]: 1 = perfectly downward, -1 = upward
+    alignment = -x_axis_z
+
+    cmd = env.command_manager.get_command(command_name)
+    approach_weight = torch.clamp(cmd[:, 1], min=0.0)
+
+    return approach_weight * alignment
+
+
 def ground_pick_return_pose(
     env: ManagerBasedRlEnv,
     asset_cfg: SceneEntityCfg = _DEFAULT_ASSET_CFG,

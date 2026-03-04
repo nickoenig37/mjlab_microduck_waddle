@@ -132,6 +132,17 @@ def make_microduck_ground_pick_env_cfg(play: bool = False) -> ManagerBasedRlEnvC
         },
     )
 
+    # Approach phase: reward mouth tip x-axis pointing downward (perpendicular to ground).
+    # alignment ∈ [-1, 1]: 1 = x-axis perfectly vertical, 0 = horizontal, -1 = pointing up.
+    cfg.rewards["mouth_perpendicular_to_ground"] = RewardTermCfg(
+        func=microduck_mdp.mouth_perpendicular_to_ground,
+        weight=1.0,
+        params={
+            "asset_cfg": SceneEntityCfg("robot", site_names=["mouth_tip"]),
+            "command_name": "twist",
+        },
+    )
+
     # Return phase — legs (joints 0-4 left, 9-13 right): relaxed std, robust to pushes.
     _LEG_JOINTS = [0, 1, 2, 3, 4, 9, 10, 11, 12, 13]
     cfg.rewards["ground_pick_return_pose_legs"] = RewardTermCfg(
