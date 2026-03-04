@@ -13,7 +13,16 @@
     },
     "additional_xml": [
         "joints_properties.xml",
-        "sensors.xml"
+        "sensors.xml",
+        "additional.xml"
+    ],
+    "post_import_commands": [
+        "sed -i 's/class=\"collision\"\\(.*mesh=\"bottom_shell\"\\)/class=\"self_collision_only\"\\1/g' robot.xml",
+        "sed -i 's/class=\"collision\"\\(.*mesh=\"leg_plate\"\\)/class=\"self_collision_only\"\\1/g' robot.xml",
+        "sed -i 's/body name=\"trunk_base\" pos=\"[^\"]*\"/body name=\"trunk_base\" pos=\"0 0 0.12\"/' robot.xml",
+        "sed -i '/<!-- Part foot_tpu_bottom -->/{n; n; s/class=\"collision\"/name=\"left_foot_collision\" class=\"collision\"/}' robot.xml",
+        "sed -i '/<!-- Part foot_tpu_bottom_2 -->/{n; n; s/class=\"collision\"/name=\"right_foot_collision\" class=\"collision\"/}' robot.xml",
+        "sed -i 's/ inheritrange=\"1\"//g' robot.xml"
     ],
     "joint_properties": {
         "default": {

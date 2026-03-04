@@ -115,7 +115,8 @@ class PolicyInference:
         self.head_mode = False
         # Offsets added on top of policy output for neck joints [neck_pitch, head_pitch, head_yaw, head_roll]
         self.head_offset = np.zeros(4, dtype=np.float32)
-        self.head_max = 2.0  # max offset per joint (rad), matches training NECK_OFFSET_MAX_ANGLE
+        self.head_max = 2.5  # max offset per joint (rad), matches training NECK_OFFSET_MAX_ANGLE
+        self.head_step = 0.1  # increment per key press (rad)
 
         # Imitation learning phase tracking
         self.imitation_phase = 0.0
@@ -560,25 +561,25 @@ def main():
             try:
                 if key == pynput_keyboard.Key.up:
                     if policy.head_mode:
-                        policy.head_offset[1] = policy.head_max   # head_pitch up
+                        policy.head_offset[1] = np.clip(policy.head_offset[1] + policy.head_step, -policy.head_max, policy.head_max)
                         print(f"Head offset: neck={policy.head_offset[0]:.2f} pitch={policy.head_offset[1]:.2f} yaw={policy.head_offset[2]:.2f} roll={policy.head_offset[3]:.2f}")
                     else:
                         policy.set_command(0.5, 0.0, 0.0)
                 elif key == pynput_keyboard.Key.down:
                     if policy.head_mode:
-                        policy.head_offset[1] = -policy.head_max  # head_pitch down
+                        policy.head_offset[1] = np.clip(policy.head_offset[1] - policy.head_step, -policy.head_max, policy.head_max)
                         print(f"Head offset: neck={policy.head_offset[0]:.2f} pitch={policy.head_offset[1]:.2f} yaw={policy.head_offset[2]:.2f} roll={policy.head_offset[3]:.2f}")
                     else:
                         policy.set_command(-0.5, 0.0, 0.0)
                 elif key == pynput_keyboard.Key.right:
                     if policy.head_mode:
-                        policy.head_offset[2] = -policy.head_max  # head_yaw right
+                        policy.head_offset[2] = np.clip(policy.head_offset[2] - policy.head_step, -policy.head_max, policy.head_max)
                         print(f"Head offset: neck={policy.head_offset[0]:.2f} pitch={policy.head_offset[1]:.2f} yaw={policy.head_offset[2]:.2f} roll={policy.head_offset[3]:.2f}")
                     else:
                         policy.set_command(0.0, -0.5, 0.0)
                 elif key == pynput_keyboard.Key.left:
                     if policy.head_mode:
-                        policy.head_offset[2] = policy.head_max   # head_yaw left
+                        policy.head_offset[2] = np.clip(policy.head_offset[2] + policy.head_step, -policy.head_max, policy.head_max)
                         print(f"Head offset: neck={policy.head_offset[0]:.2f} pitch={policy.head_offset[1]:.2f} yaw={policy.head_offset[2]:.2f} roll={policy.head_offset[3]:.2f}")
                     else:
                         policy.set_command(0.0, 0.5, 0.0)
@@ -593,23 +594,23 @@ def main():
                         policy.toggle_head_mode()
                     elif key.char == 'a' or key.char == 'A':
                         if policy.head_mode:
-                            policy.head_offset[3] = policy.head_max   # head_roll
+                            policy.head_offset[3] = np.clip(policy.head_offset[3] + policy.head_step, -policy.head_max, policy.head_max)
                             print(f"Head offset: neck={policy.head_offset[0]:.2f} pitch={policy.head_offset[1]:.2f} yaw={policy.head_offset[2]:.2f} roll={policy.head_offset[3]:.2f}")
                         else:
                             policy.set_command(0.0, 0.0, 4.0)
                     elif key.char == 'e' or key.char == 'E':
                         if policy.head_mode:
-                            policy.head_offset[3] = -policy.head_max  # head_roll
+                            policy.head_offset[3] = np.clip(policy.head_offset[3] - policy.head_step, -policy.head_max, policy.head_max)
                             print(f"Head offset: neck={policy.head_offset[0]:.2f} pitch={policy.head_offset[1]:.2f} yaw={policy.head_offset[2]:.2f} roll={policy.head_offset[3]:.2f}")
                         else:
                             policy.set_command(0.0, 0.0, -4.0)
                     elif key.char == 'z' or key.char == 'Z':
                         if policy.head_mode:
-                            policy.head_offset[0] = policy.head_max   # neck_pitch up
+                            policy.head_offset[0] = np.clip(policy.head_offset[0] + policy.head_step, -policy.head_max, policy.head_max)
                             print(f"Head offset: neck={policy.head_offset[0]:.2f} pitch={policy.head_offset[1]:.2f} yaw={policy.head_offset[2]:.2f} roll={policy.head_offset[3]:.2f}")
                     elif key.char == 's' or key.char == 'S':
                         if policy.head_mode:
-                            policy.head_offset[0] = -policy.head_max  # neck_pitch down
+                            policy.head_offset[0] = np.clip(policy.head_offset[0] - policy.head_step, -policy.head_max, policy.head_max)
                             print(f"Head offset: neck={policy.head_offset[0]:.2f} pitch={policy.head_offset[1]:.2f} yaw={policy.head_offset[2]:.2f} roll={policy.head_offset[3]:.2f}")
             except Exception as e:
                 print(f"Key press error: {e}")
