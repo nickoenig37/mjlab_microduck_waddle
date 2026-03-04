@@ -37,7 +37,7 @@ DEFAULT_POSE = np.array([
 class PolicyInference:
     def __init__(self, model, data, onnx_path, action_scale=1.0, use_imitation=False, reference_motion_path=None,
                  delay_min_lag=0, delay_max_lag=0, standing_onnx_path=None, switch_threshold=0.05,
-                 use_projected_gravity=False):
+                 use_projected_gravity=False, ground_pick_onnx_path=None, ground_pick_period=4.0):
         self.model = model
         self.data = data
         self.action_scale = action_scale
@@ -72,6 +72,17 @@ class PolicyInference:
         except Exception as e:
             print(f"Could not read gait period from ONNX metadata: {e}")
             self.default_gait_period_from_onnx = None
+
+        # Load ground pick policy if provided
+        self.ground_pick_session = None
+        self.ground_pick_mode = False
+        self.ground_pick_phase = 0.0
+        self.ground_pick_period = ground_pick_period
+        if ground_pick_onnx_path:
+            print(f"\nLoading ground pick policy from: {ground_pick_onnx_path}")
+            self.ground_pick_session = ort.InferenceSession(ground_pick_onnx_path)
+            gp_input_shape = self.ground_pick_session.get_inputs()[0].shape
+            print(f"Ground pick policy input shape: {gp_input_shape}")
 
         # Load standing policy if provided
         self.standing_session = None
@@ -330,6 +341,41 @@ class PolicyInference:
         # Concatenate all observations
         return np.concatenate(obs).astype(np.float32)
 
+    def trigger_ground_pick(self):
+        """Start one ground pick cycle. Automatically returns to walking when done."""
+        if self.ground_pick_session is None:
+            print("Ground pick unavailable: no --ground-pick policy loaded")
+            return
+        if self.ground_pick_mode:
+            print("Ground pick already in progress")
+            return
+        self.ground_pick_mode = True
+        self.ground_pick_phase = 0.0
+        self.ort_session = self.ground_pick_session
+        self.current_policy = "ground_pick"
+        print(f"Ground pick: started (period={self.ground_pick_period:.1f}s)")
+
+    def _end_ground_pick(self):
+        """Switch back to walking after a ground pick cycle completes."""
+        self.ground_pick_mode = False
+        self.command = np.zeros(3, dtype=np.float32)
+        self.ort_session = self.walking_session
+        self.current_policy = "walking"
+        print("Ground pick: done → back to walking")
+
+    def update_ground_pick_phase(self, dt: float):
+        """Advance the ground pick phase; auto-exit when one full cycle completes."""
+        if not self.ground_pick_mode:
+            return
+        new_phase = self.ground_pick_phase + dt / self.ground_pick_period
+        if new_phase >= 0.7: # with 1.0 it goes down again before switching back to walking somehow
+            self._end_ground_pick()
+            return
+        self.ground_pick_phase = new_phase
+        self.command[0] = np.cos(2 * np.pi * self.ground_pick_phase)
+        self.command[1] = np.sin(2 * np.pi * self.ground_pick_phase)
+        self.command[2] = 0.0
+
     def toggle_head_mode(self):
         """Toggle head control mode on/off."""
         self.head_mode = not self.head_mode
@@ -433,6 +479,8 @@ def main():
     parser.add_argument("--save-csv", type=str, default=None, help="Save observations and actions to CSV file")
     parser.add_argument("--record", type=str, default=None, help="Enable recording mode: save observations to pickle file on Ctrl+C")
     parser.add_argument("--switch-threshold", type=float, default=0.05, help="Command magnitude threshold for switching between standing and walking policy (default: 0.05)")
+    parser.add_argument("--ground-pick", type=str, default=None, help="Path to ground pick policy ONNX file (press G to activate)")
+    parser.add_argument("--ground-pick-period", type=float, default=4.0, help="Ground pick phase period in seconds (default: 4.0)")
     args = parser.parse_args()
 
     # Parse delay arguments
@@ -475,7 +523,9 @@ def main():
         delay_max_lag=delay_max_lag,
         standing_onnx_path=args.standing,
         switch_threshold=args.switch_threshold,
-        use_projected_gravity=not args.raw_accelerometer
+        use_projected_gravity=not args.raw_accelerometer,
+        ground_pick_onnx_path=args.ground_pick,
+        ground_pick_period=args.ground_pick_period,
     )
     policy.set_command(args.lin_vel_x, args.lin_vel_y, args.ang_vel_z)
 
@@ -590,7 +640,9 @@ def main():
                     else:
                         policy.set_command(0.0, 0.0, 0.0)
                 elif hasattr(key, 'char'):
-                    if key.char == 'h' or key.char == 'H':
+                    if key.char == 'g' or key.char == 'G':
+                        policy.trigger_ground_pick()
+                    elif key.char == 'h' or key.char == 'H':
                         policy.toggle_head_mode()
                     elif key.char == 'a' or key.char == 'A':
                         if policy.head_mode:
@@ -624,6 +676,7 @@ def main():
         print("  LEFT/RIGHT arrow: lin_vel_y ±0.5")
         print("  A / E:           ang_vel_z ±4.0")
         print("  SPACE:           stop (all velocities = 0)")
+        print("  G:               toggle ground pick mode (requires --ground-pick)")
         print("  [ Head mode — press H to toggle ]")
         print("  Z / S:           neck_pitch ±2.5 rad (max)")
         print("  UP/DOWN arrow:   head_pitch ±2.5 rad (max)")
@@ -685,6 +738,7 @@ def main():
                 # Update phase for imitation learning using actual elapsed time
                 # This ensures phase stays synchronized even if control loop runs faster/slower than target
                 policy.update_phase(actual_dt)
+                policy.update_ground_pick_phase(actual_dt)
 
                 # Control loop: run inference and apply action (or hold default position during standby)
                 if policy_enabled:
