@@ -184,19 +184,19 @@ def make_microduck_ground_pick_env_cfg(play: bool = False) -> ManagerBasedRlEnvC
 
     # ── Rewards: regularisation ───────────────────────────────────────────────
 
-    # Action smoothness — same weight as velocity env final curriculum value.
+    # Action smoothness — increased to incentivize slower, smoother motion.
     cfg.rewards["action_rate_l2"] = RewardTermCfg(
-        func=mdp.action_rate_l2, weight=-0.6
+        func=mdp.action_rate_l2, weight=-2.0
     )
 
     # Neck/head smoothness — higher weight because head is heavily used.
     cfg.rewards["neck_action_rate_l2"] = RewardTermCfg(
-        func=microduck_mdp.neck_action_rate_l2, weight=-0.3
+        func=microduck_mdp.neck_action_rate_l2, weight=-1.0
     )
 
-    # Joint torque penalty — energy efficiency & sim2real.
+    # Joint torque penalty — increased to further penalise fast/forceful moves.
     cfg.rewards["joint_torques_l2"] = RewardTermCfg(
-        func=microduck_mdp.joint_torques_l2, weight=-1e-3
+        func=microduck_mdp.joint_torques_l2, weight=-5e-3
     )
 
     # Self-collision — head and neck could clip the legs during deep crouch.
