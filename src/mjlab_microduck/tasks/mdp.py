@@ -863,6 +863,64 @@ def contact_frequency_penalty(
 
 
 # ==============================================================================
+# Ground Pick Rewards
+# ==============================================================================
+
+def mouth_ground_proximity(
+    env: ManagerBasedRlEnv,
+    asset_cfg: SceneEntityCfg = SceneEntityCfg("robot", site_names=["mouth_tip"]),
+    std: float = 0.03,
+    target_height: float = 0.0,
+    command_name: str = "twist",
+) -> torch.Tensor:
+    """Reward for mouth tip approaching the ground, weighted by the approach phase.
+
+    The command for the ground pick task is [cos(2π*phase), sin(2π*phase), 0].
+    The approach phase is the first half-cycle (sin > 0, phase ∈ [0, 0.5]),
+    smoothly weighted by max(0, sin(2π*phase)).
+
+    Args:
+        std: Gaussian std on mouth_tip height (m). 0.03 m gives strong gradient.
+        target_height: Target z-height for the mouth tip (m). 0 = ground level.
+    """
+    asset = env.scene[asset_cfg.name]
+    mouth_z = asset.data.site_pos_w[:, asset_cfg.site_ids[0], 2]  # (num_envs,)
+    proximity = torch.exp(-((mouth_z - target_height) / std) ** 2)
+
+    # Approach weight: max(0, sin(2π*phase)) — peaks at 1 at phase=0.25, zero at 0 and 0.5
+    cmd = env.command_manager.get_command(command_name)
+    approach_weight = torch.clamp(cmd[:, 1], min=0.0)
+
+    return approach_weight * proximity
+
+
+def ground_pick_return_pose(
+    env: ManagerBasedRlEnv,
+    asset_cfg: SceneEntityCfg = _DEFAULT_ASSET_CFG,
+    std: float = 0.3,
+    command_name: str = "twist",
+) -> torch.Tensor:
+    """Reward for returning to the standing pose after ground pick, weighted by the return phase.
+
+    The return phase is the second half-cycle (sin < 0, phase ∈ [0.5, 1.0]),
+    smoothly weighted by max(0, -sin(2π*phase)).
+
+    Args:
+        std: Gaussian std per joint (rad). 0.3 rad gives a meaningful gradient.
+    """
+    asset = env.scene[asset_cfg.name]
+    joint_pos = asset.data.joint_pos        # (num_envs, n_joints)
+    default_pos = asset.data.default_joint_pos  # (num_envs, n_joints)
+    pose_reward = torch.exp(-((joint_pos - default_pos) / std) ** 2).mean(dim=-1)
+
+    # Return weight: max(0, -sin(2π*phase)) — peaks at 1 at phase=0.75, zero at 0.5 and 1
+    cmd = env.command_manager.get_command(command_name)
+    return_weight = torch.clamp(-cmd[:, 1], min=0.0)
+
+    return return_weight * pose_reward
+
+
+# ==============================================================================
 # Domain Randomization Events
 # ==============================================================================
 
@@ -1685,3 +1743,47 @@ class VelocityCommandCommandOnly(UniformVelocityCommand):
             (np.array([0, 0, z_offset]) + np.array([cmd[0], cmd[1], 0])) * scale
         )
         visualizer.add_arrow(cmd_lin_from, cmd_lin_to, color=(0.2, 0.2, 0.6, 0.6), width=0.015)
+
+
+class GroundPickPhaseCommand(UniformVelocityCommand):
+    """Phase-encoding command for the ground pick task.
+
+    Replaces the velocity command with a cyclic phase signal:
+        command = [cos(2π*phase), sin(2π*phase), 0]
+
+    Phase ∈ [0, 0.5]: approach (go down, touch ground with mouth).
+    Phase ∈ [0.5, 1.0]: return (stand back up).
+
+    Phase is randomized per environment on episode reset to decorrelate envs.
+    Period is 4 seconds by default (2 s down + 2 s up).
+    """
+
+    PERIOD: float = 4.0  # seconds per full cycle
+
+    def __init__(self, cfg, env: ManagerBasedRlEnv):
+        super().__init__(cfg, env)
+        self._gp_phase = torch.zeros(self.num_envs, device=self.device)
+
+    @property
+    def command(self) -> torch.Tensor:
+        return self.vel_command_b
+
+    def compute(self, dt: float) -> None:
+        self._gp_phase = (self._gp_phase + dt / self.PERIOD) % 1.0
+        self.vel_command_b[:, 0] = torch.cos(2 * torch.pi * self._gp_phase)
+        self.vel_command_b[:, 1] = torch.sin(2 * torch.pi * self._gp_phase)
+        self.vel_command_b[:, 2] = 0.0
+
+    def reset(self, env_ids: torch.Tensor | None) -> dict:
+        if env_ids is not None and len(env_ids) > 0:
+            self._gp_phase[env_ids] = torch.rand(len(env_ids), device=self.device)
+        return {}
+
+    def _resample_command(self, env_ids: torch.Tensor) -> None:
+        pass  # Phase is continuous; no resampling needed
+
+    def _update_command(self) -> None:
+        pass  # Updated in compute()
+
+    def _update_metrics(self) -> None:
+        pass  # No velocity tracking metrics for ground pick
