@@ -135,18 +135,24 @@ def make_microduck_standup_env_cfg(play: bool = False) -> ManagerBasedRlEnvCfg:
     command.class_type = microduck_mdp.VelocityCommandCommandOnly
 
     # === REWARDS ===
-    std_standing = {
-        r".*hip_yaw.*": 0.15,
-        r".*hip_roll.*": 0.15,
-        r".*hip_pitch.*": 0.2,
-        r".*knee.*": 0.2,
-        r".*ankle.*": 0.15,
-        r".*neck.*": 0.3,
-        r".*head.*": 0.3,
-    }
-
     cfg.rewards = {
-        # Main objective: reach standing height
+        # Linear upright reward: +1 when vertical, 0 when horizontal, -1 when inverted.
+        # Provides non-zero gradient at every tilt angle, unlike a narrow Gaussian
+        # which is ~0 at the 90° prone starting position.
+        "upright_linear": RewardTermCfg(
+            func=microduck_mdp.body_upright_linear,
+            weight=4.0,
+            params={"asset_cfg": SceneEntityCfg("robot", body_names=("trunk_base",))},
+        ),
+        # Reward upward CoM velocity: directly incentivizes the dynamic push needed
+        # to go from prone to standing. Clamped to zero on the way down so the robot
+        # isn't penalized for settling once upright.
+        "com_upward_velocity": RewardTermCfg(
+            func=microduck_mdp.com_upward_velocity,
+            weight=3.0,
+            params={"asset_cfg": SceneEntityCfg("robot", body_names=("trunk_base",))},
+        ),
+        # Height reward: quadratic penalty below target, +1 when in standing range.
         "com_height_target": RewardTermCfg(
             func=microduck_mdp.com_height_target,
             weight=5.0,
@@ -155,52 +161,30 @@ def make_microduck_standup_env_cfg(play: bool = False) -> ManagerBasedRlEnvCfg:
                 "target_height_max": 0.11,
             },
         ),
-        # Be upright
-        "upright": RewardTermCfg(
-            func=velocity_mdp.flat_orientation,
-            weight=3.0,
-            params={
-                "std": 0.45,
-                "asset_cfg": SceneEntityCfg("robot", body_names=("trunk_base",)),
-            },
-        ),
-        # Match default joint pose
+        # Pose reward only once standing (std is loose — don't over-constrain during
+        # the dynamic standup phase, but reward the final upright pose).
         "pose": RewardTermCfg(
             func=velocity_mdp.variable_posture,
-            weight=2.0,
+            weight=1.0,
             params={
                 "asset_cfg": SceneEntityCfg("robot", joint_names=(r".*",)),
                 "command_name": "twist",
-                "std_standing": std_standing,
-                "std_walking": std_standing,
-                "std_running": std_standing,
+                "std_standing": {r".*": 0.5},
+                "std_walking": {r".*": 0.5},
+                "std_running": {r".*": 0.5},
                 "walking_threshold": 0.01,
                 "running_threshold": 1.5,
             },
         ),
-        # Alive bonus
-        "alive": RewardTermCfg(
-            func=velocity_mdp.is_alive,
-            weight=1.0,
-        ),
-        # Large penalty on (forced) termination
-        "termination": RewardTermCfg(
-            func=velocity_mdp.is_terminated,
-            weight=-100.0,
-        ),
-        # Regularization
+        # Regularization — kept very light so motion penalties don't outweigh
+        # the upward-velocity and upright rewards during the standup phase.
         "action_rate_l2": RewardTermCfg(
             func=velocity_mdp.action_rate_l2,
-            weight=-0.3,
+            weight=-0.01,
         ),
         "joint_torques_l2": RewardTermCfg(
             func=microduck_mdp.joint_torques_l2,
-            weight=-1e-3,
-        ),
-        "body_ang_vel": RewardTermCfg(
-            func=velocity_mdp.body_angular_velocity_penalty,
-            weight=-0.05,
-            params={"asset_cfg": SceneEntityCfg("robot", body_names=("trunk_base",))},
+            weight=-1e-5,
         ),
         "dof_pos_limits": RewardTermCfg(
             func=velocity_mdp.joint_pos_limits,

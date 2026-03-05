@@ -661,6 +661,40 @@ def neck_action_acceleration_l2(
     return torch.sum(torch.square(action_acc), dim=1)
 
 
+def body_upright_linear(
+    env: ManagerBasedRlEnv,
+    asset_cfg: SceneEntityCfg = _DEFAULT_ASSET_CFG,
+) -> torch.Tensor:
+    """Linear reward for body uprightness — provides gradient at every tilt angle.
+
+    Returns +1 when fully upright, 0 when horizontal (prone/supine), -1 when inverted.
+    Unlike flat_orientation (Gaussian), this has non-zero gradient everywhere, so the
+    robot always has a signal to rotate toward upright even when starting from prone.
+
+    Computed as the z-component of the body's local Z-axis expressed in world frame,
+    which equals R[2,2] = 1 - 2*(qx² + qy²) for quaternion [w, x, y, z].
+    """
+    asset: Entity = env.scene[asset_cfg.name]
+    quat = asset.data.root_link_quat_w  # (N, 4): [w, x, y, z]
+    qx = quat[:, 1]
+    qy = quat[:, 2]
+    return 1.0 - 2.0 * (qx * qx + qy * qy)
+
+
+def com_upward_velocity(
+    env: ManagerBasedRlEnv,
+    asset_cfg: SceneEntityCfg = _DEFAULT_ASSET_CFG,
+) -> torch.Tensor:
+    """Reward upward center-of-mass velocity to incentivize dynamic standup motion.
+
+    Only rewards upward movement (clamps to zero when moving down) so the robot
+    isn't penalized for settling after standing up.
+    """
+    asset: Entity = env.scene[asset_cfg.name]
+    vz = asset.data.root_link_lin_vel_w[:, 2]
+    return torch.clamp(vz, min=0.0)
+
+
 def is_alive(env: ManagerBasedRlEnv) -> torch.Tensor:
     """
     Reward for staying alive (not terminated)
