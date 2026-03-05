@@ -223,8 +223,10 @@ def make_microduck_standup_env_cfg(play: bool = False) -> ManagerBasedRlEnvCfg:
         mode="reset",
     )
 
-    # Low z: robot is lying on its back, body close to ground
-    cfg.events["reset_base"].params["pose_range"]["z"] = (0.05, 0.07)
+    # Robot is pitched 90° forward (belly/front facing ground). Trunk CoM sits
+    # at roughly the body's half-depth above the ground. Set z high enough that
+    # the neck/head don't clip the floor given HOME_FRAME neck joint angles.
+    cfg.events["reset_base"].params["pose_range"]["z"] = (0.12, 0.15)
     cfg.events["foot_friction"].params["asset_cfg"].geom_names = foot_frictions_geom_names
 
     # Override orientation to face-down (runs after reset_base sets position)

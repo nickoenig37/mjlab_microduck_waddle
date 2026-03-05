@@ -1749,16 +1749,15 @@ def set_face_down_orientation(
     env_ids: torch.Tensor,
     asset_cfg: SceneEntityCfg = _DEFAULT_ASSET_CFG,
 ):
-    """Set the robot to a face-down (inverted) orientation for stand-up training.
+    """Set the robot to a prone (belly-down) orientation for stand-up training.
 
-    Rotates the robot 180° around the pitch axis (Y) combined with a random yaw,
-    so the robot starts lying on its back with legs pointing upward.
-    Call this after reset_base so position is already set.
+    Rotates the robot 90° forward around the pitch axis (Y) so the front/belly
+    faces the ground and legs point upward. Combined with a random yaw.
 
     Quaternion derivation:
-        quat_pitch180 = [0, 0, 1, 0]  (180° around Y)
-        quat_yaw      = [cy, 0, 0, sy]
-        combined      = quat_yaw * quat_pitch180 = [0, -sy, cy, 0]
+        quat_pitch90 = [s, 0, s, 0]   where s = sqrt(2)/2  (90° around Y)
+        quat_yaw     = [cy, 0, 0, sy]
+        combined     = quat_yaw * quat_pitch90 = [s*cy, -s*sy, s*cy, s*sy]
     """
     if env_ids is None or len(env_ids) == 0:
         return
@@ -1768,13 +1767,14 @@ def set_face_down_orientation(
     yaw = torch.rand(num, device=env.device) * 2 * np.pi - np.pi
     cy = torch.cos(yaw * 0.5)
     sy = torch.sin(yaw * 0.5)
+    s = 2.0 ** -0.5  # sqrt(2)/2
 
     new_quat = torch.stack(
         [
-            torch.zeros(num, device=env.device),  # w
-            -sy,                                   # x
-            cy,                                    # y
-            torch.zeros(num, device=env.device),  # z
+            s * cy,   # w
+            -s * sy,  # x
+            s * cy,   # y
+            s * sy,   # z
         ],
         dim=1,
     )
