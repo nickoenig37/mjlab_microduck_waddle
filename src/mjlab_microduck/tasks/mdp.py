@@ -1744,6 +1744,46 @@ def randomize_base_orientation(
     env.sim.data.qpos[env_ids, root_quat_idx:root_quat_idx+4] = new_quat
 
 
+def set_face_down_orientation(
+    env: ManagerBasedRlEnv,
+    env_ids: torch.Tensor,
+    asset_cfg: SceneEntityCfg = _DEFAULT_ASSET_CFG,
+):
+    """Set the robot to a face-down (inverted) orientation for stand-up training.
+
+    Rotates the robot 180° around the pitch axis (Y) combined with a random yaw,
+    so the robot starts lying on its back with legs pointing upward.
+    Call this after reset_base so position is already set.
+
+    Quaternion derivation:
+        quat_pitch180 = [0, 0, 1, 0]  (180° around Y)
+        quat_yaw      = [cy, 0, 0, sy]
+        combined      = quat_yaw * quat_pitch180 = [0, -sy, cy, 0]
+    """
+    if env_ids is None or len(env_ids) == 0:
+        return
+    env_ids = env_ids.to(env.device, dtype=torch.int)
+    num = len(env_ids)
+
+    yaw = torch.rand(num, device=env.device) * 2 * np.pi - np.pi
+    cy = torch.cos(yaw * 0.5)
+    sy = torch.sin(yaw * 0.5)
+
+    new_quat = torch.stack(
+        [
+            torch.zeros(num, device=env.device),  # w
+            -sy,                                   # x
+            cy,                                    # y
+            torch.zeros(num, device=env.device),  # z
+        ],
+        dim=1,
+    )
+
+    # Freejoint qpos: [x, y, z, qw, qx, qy, qz, ...]
+    env.sim.data.qpos[env_ids, 3:7] = new_quat
+    env.sim.data.qvel[env_ids, :6] = 0.0
+
+
 class VelocityCommandCommandOnly(UniformVelocityCommand):
     """Like UniformVelocityCommand but only draws the command arrows (no actual velocity arrows)."""
 
