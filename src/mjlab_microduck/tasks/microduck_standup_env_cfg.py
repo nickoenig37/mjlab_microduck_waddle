@@ -271,6 +271,20 @@ def make_microduck_standup_env_cfg(play: bool = False) -> ManagerBasedRlEnvCfg:
     del cfg.curriculum["terrain_levels"]
     del cfg.curriculum["command_vel"]
 
+    from mjlab.managers.manager_term_config import CurriculumTermCfg
+    cfg.curriculum["action_rate_weight"] = CurriculumTermCfg(
+        func=velocity_mdp.reward_weight,
+        params={
+            "reward_name": "action_rate_l2",
+            "weight_stages": [
+                {"step": 0,          "weight": -0.01},
+                {"step": 500 * 24,   "weight": -0.1},
+                {"step": 1000 * 24,  "weight": -0.3},
+                {"step": 2000 * 24,  "weight": -0.6},
+            ],
+        },
+    )
+
     return cfg
 
 
