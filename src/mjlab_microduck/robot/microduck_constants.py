@@ -8,20 +8,13 @@ from mjlab.utils.spec_config import CollisionCfg
 
 _ROBOT_DIR: Path = Path(os.path.dirname(__file__)) / "microduck"
 
-MICRODUCK_XML: Path = _ROBOT_DIR / "robot.xml"
 MICRODUCK_WALK_XML: Path = _ROBOT_DIR / "robot_walk.xml"
-MICRODUCK_STANDUP_XML: Path = _ROBOT_DIR / "robot_standup.xml"
+MICRODUCK_STANDUP_XML: Path = _ROBOT_DIR / "robot_stand_up.xml"
 MICRODUCK_GROUND_PICK_XML: Path = _ROBOT_DIR / "robot_ground_pick.xml"
 
-assert MICRODUCK_XML.exists(), f"XML not found: {MICRODUCK_XML}"
 assert MICRODUCK_WALK_XML.exists(), f"XML not found: {MICRODUCK_WALK_XML}"
 assert MICRODUCK_STANDUP_XML.exists(), f"XML not found: {MICRODUCK_STANDUP_XML}"
-# robot_ground_pick.xml is optional — falls back to robot_standup.xml if absent
-_GROUND_PICK_XML = MICRODUCK_GROUND_PICK_XML if MICRODUCK_GROUND_PICK_XML.exists() else MICRODUCK_STANDUP_XML
-
-
-def get_spec() -> mujoco.MjSpec:
-    return mujoco.MjSpec.from_file(str(MICRODUCK_XML))
+assert MICRODUCK_GROUND_PICK_XML.exists(), f"XML not found: {MICRODUCK_GROUND_PICK_XML}"
 
 
 def get_walk_spec() -> mujoco.MjSpec:
@@ -33,7 +26,7 @@ def get_standup_spec() -> mujoco.MjSpec:
 
 
 def get_ground_pick_spec() -> mujoco.MjSpec:
-    return mujoco.MjSpec.from_file(str(_GROUND_PICK_XML))
+    return mujoco.MjSpec.from_file(str(MICRODUCK_GROUND_PICK_XML))
 
 
 HOME_FRAME = EntityCfg.InitialStateCfg(
@@ -70,16 +63,6 @@ actuators = DelayedActuatorCfg(
 )
 
 # actuators=XmlPositionActuatorCfg(joint_names_expr=(r".*",))
-
-MICRODUCK_ROBOT_CFG = EntityCfg(
-    spec_fn=get_spec,
-    init_state=HOME_FRAME,
-    collisions=(FULL_COLLISION,),
-    articulation=EntityArticulationInfoCfg(
-        actuators=(actuators,),
-        soft_joint_pos_limit_factor=0.9,
-    ),
-)
 
 MICRODUCK_WALK_ROBOT_CFG = EntityCfg(
     spec_fn=get_walk_spec,
@@ -118,7 +101,7 @@ if __name__ == "__main__":
 
     SCENE_CFG = SceneCfg(
         terrain=TerrainImporterCfg(terrain_type="plane"),
-        entities={"robot": MICRODUCK_ROBOT_CFG},
+        entities={"robot": MICRODUCK_WALK_ROBOT_CFG},
     )
 
     scene = Scene(SCENE_CFG, device="cuda:0")
