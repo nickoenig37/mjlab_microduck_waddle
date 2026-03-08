@@ -28,8 +28,8 @@ IMU_ORIENTATION_RANDOMIZATION_ANGLE = 1.0
 # Nominal standing CoM height (midpoint of [0.08, 0.11] m)
 BODY_CMD_NOMINAL_HEIGHT = 0.095
 # Normalization constants for the policy observation (must match training)
-BODY_CMD_MAX_Z = 0.025          # ±25 mm height offset
-BODY_CMD_MAX_ANGLE = math.radians(20)  # ±20° pitch / roll
+BODY_CMD_MAX_Z = 0.03          # ±30 mm height offset
+BODY_CMD_MAX_ANGLE = math.radians(30)  # ±30° pitch / roll
 # Tracking reward std — tight to create strong gradients
 BODY_CMD_Z_STD = 0.01           # 10 mm
 BODY_CMD_ANGLE_STD = math.radians(5)   # 5°
