@@ -27,6 +27,12 @@ IMU_ORIENTATION_RANDOMIZATION_ANGLE = 1.0
 # Body pose command control
 # Nominal standing CoM height (midpoint of [0.08, 0.11] m)
 BODY_CMD_NOMINAL_HEIGHT = 0.095
+# Tight height range for the standup com_height_target reward.
+# Must exclude face-down reset heights (0.12–0.15 m) so the robot is always
+# penalized for lying flat and must stand up to earn this reward.
+# Decoupled from BODY_CMD_MAX_Z intentionally — do NOT use the formula here.
+STANDUP_HEIGHT_MIN = 0.075   # below this: quadratic penalty
+STANDUP_HEIGHT_MAX = 0.110   # above this: quadratic penalty (catches face-down)
 # Normalization constants for the policy observation (must match training)
 BODY_CMD_MAX_Z = 0.03          # ±30 mm height offset
 BODY_CMD_MAX_ANGLE = math.radians(30)  # ±30° pitch / roll
@@ -205,13 +211,14 @@ def make_microduck_standup_env_cfg(play: bool = False, rough: bool = False) -> M
             },
         ),
         # Height reward: quadratic penalty below target, +1 when in standing range.
-        # Range is widened to accommodate ±BODY_CMD_MAX_Z body pose commands.
+        # Fixed range — intentionally NOT derived from BODY_CMD_MAX_Z so widening
+        # the body control range doesn't accidentally include face-down heights.
         "com_height_target": RewardTermCfg(
             func=microduck_mdp.com_height_target,
             weight=5.0,
             params={
-                "target_height_min": BODY_CMD_NOMINAL_HEIGHT - BODY_CMD_MAX_Z - 0.005,
-                "target_height_max": BODY_CMD_NOMINAL_HEIGHT + BODY_CMD_MAX_Z + 0.005,
+                "target_height_min": STANDUP_HEIGHT_MIN,
+                "target_height_max": STANDUP_HEIGHT_MAX,
             },
         ),
         # Body pose tracking reward: Gaussian on z, pitch, roll vs commanded values.
