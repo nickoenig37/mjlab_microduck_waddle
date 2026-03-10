@@ -60,8 +60,8 @@ def make_waddle_velocity_env_cfg(
         cfg.rewards[reward_name].params["asset_cfg"].site_names = site_names
 
     # Increase swing/clearance targets toward prior planner foot height.
-    cfg.rewards["foot_clearance"].params["target_height"] = 0.03
-    cfg.rewards["foot_swing_height"].params["target_height"] = 0.03
+    cfg.rewards["foot_clearance"].params["target_height"] = 0.02
+    cfg.rewards["foot_swing_height"].params["target_height"] = 0.02
 
     if "self_collisions" in cfg.rewards:
         del cfg.rewards["self_collisions"]
@@ -79,6 +79,11 @@ def make_waddle_velocity_env_cfg(
         cfg.events["randomize_mass_inertia"].params["asset_cfg"].body_names = (
             "trunk_assembly",
         )
+
+    # In play mode, remove external push perturbations so behavior reflects
+    # policy quality rather than frequent scripted disturbances.
+    if play and "push_robot" in cfg.events:
+        del cfg.events["push_robot"]
 
     command: UniformVelocityCommandCfg = cfg.commands["twist"]
     command.rel_standing_envs = 0.1
