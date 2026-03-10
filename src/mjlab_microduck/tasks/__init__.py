@@ -63,7 +63,7 @@ register_mjlab_task(
     rl_cfg=MicroduckStandUpRlCfg,
     runner_cls=MicroduckOnPolicyRunner,
 )
-print("✓ StandUp task registered: Mjlab-StandUp-Flat-MicroDuck")
+print("[OK] StandUp task registered: Mjlab-StandUp-Flat-MicroDuck")
 
 register_mjlab_task(
     task_id="Mjlab-StandUp-Rough-MicroDuck",
@@ -72,7 +72,7 @@ register_mjlab_task(
     rl_cfg=MicroduckStandUpRlCfg,
     runner_cls=MicroduckOnPolicyRunner,
 )
-print("✓ StandUp task registered: Mjlab-StandUp-Rough-MicroDuck")
+print("[OK] StandUp task registered: Mjlab-StandUp-Rough-MicroDuck")
 
 # Ground pick task — episodic policy: crouch, touch ground with mouth, return to standing
 register_mjlab_task(
@@ -82,7 +82,7 @@ register_mjlab_task(
     rl_cfg=MicroduckGroundPickRlCfg,
     runner_cls=MicroduckOnPolicyRunner,
 )
-print("✓ Ground pick task registered: Mjlab-GroundPick-Flat-MicroDuck")
+print("[OK] Ground pick task registered: Mjlab-GroundPick-Flat-MicroDuck")
 
 register_mjlab_task(
     task_id="Mjlab-GroundPick-Rough-MicroDuck",
@@ -91,7 +91,7 @@ register_mjlab_task(
     rl_cfg=MicroduckGroundPickRlCfg,
     runner_cls=MicroduckOnPolicyRunner,
 )
-print("✓ Ground pick task registered: Mjlab-GroundPick-Rough-MicroDuck")
+print("[OK] Ground pick task registered: Mjlab-GroundPick-Rough-MicroDuck")
 
 # Imitation motion tracking task
 # Uses frame-based reference motions (reference_motion.pkl)
@@ -116,7 +116,7 @@ if os.path.exists(_imitation_motion_path):
         runner_cls=MicroduckOnPolicyRunner,
     )
     ghost_status = "enabled" if _enable_ghost_vis else "disabled"
-    print(f"✓ Imitation task registered: Mjlab-Imitation-Flat-MicroDuck (ghost vis: {ghost_status})")
+    print(f"[OK] Imitation task registered: Mjlab-Imitation-Flat-MicroDuck (ghost vis: {ghost_status})")
 else:
     print(f"Warning: Imitation motion file not found at {_imitation_motion_path}")
     print("Imitation task 'Mjlab-Imitation-Flat-MicroDuck' not registered.")
