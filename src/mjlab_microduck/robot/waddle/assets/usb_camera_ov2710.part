@@ -1,0 +1,14 @@
+{
+    "configuration": "default",
+    "documentId": "e77fce096e974f21ba2c7a75",
+    "documentMicroversion": "7b8489abac348ad9bc459310",
+    "documentVersion": "2a30fa04a1192493d0f56237",
+    "elementId": "44ad4dcf80e3f4d1ae58094b",
+    "fullConfiguration": "default",
+    "id": "MwwsFbKKim48L8gNB",
+    "isStandardContent": false,
+    "name": "USB_Camera_OV2710 <1>",
+    "partId": "JFf",
+    "suppressed": false,
+    "type": "Part"
+}

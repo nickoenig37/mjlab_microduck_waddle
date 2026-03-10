@@ -1,0 +1,14 @@
+{
+    "configuration": "default",
+    "documentId": "eaff81561ed73afd22f3cbef",
+    "documentMicroversion": "d2ac848471fa298c13d12243",
+    "documentVersion": "1ea63aaa5f8ce99236373e14",
+    "elementId": "f80a02dd919b704b910ecdd4",
+    "fullConfiguration": "default",
+    "id": "Ma3Wq+kjJvTLhJNXW",
+    "isStandardContent": false,
+    "name": "battery_enclosure <1>",
+    "partId": "JFD",
+    "suppressed": false,
+    "type": "Part"
+}

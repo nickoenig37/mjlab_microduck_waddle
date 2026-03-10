@@ -1,0 +1,53 @@
+{
+    // NEED TO WRAP all in a body named "base" and add site 
+    // <site name="imu" pos="-0.08 -0.0 0.05"/>
+    // and comment the default kp frictionloss etc
+    "url": "https://cad.onshape.com/documents/8c845fbc7fa3a1413249e3ae/w/48f29f8f32358649cb0ef961/e/a093785b026f87eebf78a749",
+    // "documentId": "64074dfcfa379b37d8a47762",
+    "outputFormat": "mujoco",
+    // "assemblyName": "Open_Duck_Mini_v2",
+    // "robot_name": "open_duck_mini_v2",
+    "output_filename": "waddle",
+    // Simplify STL meshes (default: false)
+    "simplify_stls": true,
+    // Maximum size of the STL files in MB (default: 3)
+    // "max_stl_size": 0.005,
+    "max_stl_size": 0.5,
+    // "collisions_as_visual": true,
+    "ignore": {
+        // "wj*": "visual",
+        // "drive_palonier": "visual",
+        // "passive_palonier": "visual",
+        // "bulb": "visual",
+        // "USB_Camera_OV2710": "visual",
+        // "sg90": "visual",
+        // "head_roll_mount": "visual",
+        // "simplified_jetson_nano": "visual",
+        // "speaker_stand": "visual",
+        // "speaker_interface": "visual",
+        // "holder": "visual",
+        // "cell": "visual",
+        // "bms": "visual",
+        // "Turnigy_3S_Battery": "visual",
+        // "right_eye": "visual",
+        // "left_eye": "visual",
+        // "glass": "visual",
+        // "full_speaker": "visual",
+        // "roll_bearing": "visual",
+        // "Switch": "visual",
+        // "board": "visual",
+        // "bno055": "visual",
+        // "PDB_XT60": "visual",
+        "*": "collision",
+        "!foot_bottom_tpu": "collision"
+    },
+    "joint_properties": {
+        "default": {
+            "class": "sts3215"
+        }
+    },
+    "additional_xml": [
+        "xmls/sensors.xml",
+        "xmls/joints_properties.xml"
+    ]
+}

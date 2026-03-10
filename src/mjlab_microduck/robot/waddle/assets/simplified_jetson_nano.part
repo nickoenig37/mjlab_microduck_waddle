@@ -1,0 +1,14 @@
+{
+    "configuration": "default",
+    "documentId": "a44c99c514fb9acc09cfb20c",
+    "documentMicroversion": "60171180f29b9a4eaf9baddf",
+    "documentVersion": "f8df1f68d89da2aaf4ea3df0",
+    "elementId": "3fd13170a11b4d28210bbf16",
+    "fullConfiguration": "default",
+    "id": "MigRkh1QhOVdq1ADZ",
+    "isStandardContent": false,
+    "name": "simplified_jetson_nano <2>",
+    "partId": "JHD",
+    "suppressed": false,
+    "type": "Part"
+}

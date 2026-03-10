@@ -1,0 +1,549 @@
+<?xml version="1.0" ?>
+<!-- Based on waddle_12V_backlash.xml -->
+<!-- Modified to align joint limits, body quaternions, and structure with open_duck_mini_v2_backlash.xml -->
+<!-- See waddle_12V_backlash_adjusted_changelog.md for details -->
+<!-- Onshape https://cad.onshape.com/documents/8c845fbc7fa3a1413249e3ae/w/48f29f8f32358649cb0ef961/e/a093785b026f87eebf78a749 -->
+<mujoco model="waddle">
+  <!-- They had this option in openduck so added here -->
+  <option iterations="1" ls_iterations="5">
+    <flag eulerdamp="disable"/>
+  </option>
+
+  <compiler angle="radian" meshdir="../assets" autolimits="true"/>
+  
+  <default>
+    <default class="waddle">
+      <!-- <joint frictionloss="0.1" armature="0.005"/>
+      <position kp="50" dampratio="1"/> -->
+      <default class="visual">
+        <geom type="mesh" contype="0" conaffinity="0" group="2"/>
+      </default>
+      <default class="collision">
+        <geom group="3"/>
+      </default>
+    </default>
+  </default>
+  <!-- Additional xmls/sensors.xml -->
+  <sensor>
+    <gyro site="imu" name="gyro"/>
+    <velocimeter site="imu" name="local_linvel"/>
+    <accelerometer site="imu" name="accelerometer"/>
+    <framezaxis objtype="site" objname="imu" name="upvector"/>
+    <framexaxis objtype="site" objname="imu" name="forwardvector"/>
+    <framelinvel objtype="site" objname="imu" name="global_linvel"/>
+    <frameangvel objtype="site" objname="imu" name="global_angvel"/>
+    <framepos objtype="site" objname="imu" name="position"/>
+    <framequat objtype="site" objname="imu" name="orientation"/>
+    <framelinvel objtype="site" objname="right_foot" name="right_foot_global_linvel"/>
+    <framelinvel objtype="site" objname="left_foot" name="left_foot_global_linvel"/>
+    <framexaxis objtype="site" objname="left_foot" name="left_foot_upvector"/>
+    <framexaxis objtype="site" objname="right_foot" name="right_foot_upvector"/>
+    <framepos objtype="site" objname="left_foot" name="left_foot_pos"/>
+    <framepos objtype="site" objname="right_foot" name="right_foot_pos"/>
+  </sensor>
+  <!-- Additional xmls/joints_properties.xml -->
+  <default>
+    <default class="sts3215">
+      <geom contype="0" conaffinity="0"/>
+      <joint damping="0.56" frictionloss="0.068" armature="0.027"/>
+      <position kp="17.11" kv="0.0" forcerange="-3.23 3.23"/>
+    </default>
+    <default class="sts3215_12v">
+      <geom contype="0" conaffinity="0"/>
+      <joint damping="1.05" frictionloss="0.195" armature="0.032"/>
+      <position kp="46.3" kv="0.0" forcerange="-8.53 8.53"/>
+      <default class="chosen_actuator"/>
+    </default>
+    <default class="backlash">
+      <!-- +/- 0.5° of backlash -->
+      <joint damping="0.01" frictionloss="0" armature="0.01" limited="true"
+        range="-0.008726646259971648 0.008726646259971648"/>
+    </default>
+  </default>
+  <worldbody>
+    <body name="base" pos="0 0 0.22">
+      <freejoint name="floating_base"/>
+      <!-- IMU position unchanged from waddle original -->
+      <site name="imu" pos="-0.040705 -1.715e-09 0.0862909"/>
+
+
+      <!-- Link trunk_assembly -->
+      <body name="trunk_assembly" pos="0 0 0" quat="1 0 0 0" childclass="waddle">
+        <!-- <freejoint name="trunk_assembly_freejoint"/> -->
+        <!-- Mass/inertia unchanged from waddle original -->
+        <inertial pos="-0.0215141 0.00119061 0.0354003" mass="1.1678" fullinertia="0.00252715 0.00565527 0.00482046 0.000146105 0.000181039 -2.75948e-05"/>
+        <!-- Part jetson_nano_baseplate -->
+        <!-- Internal visual part removed to match open duck convention -->
+        <!-- Part body_front -->
+        <geom type="mesh" class="visual" pos="0.001 0 0.0648909" quat="1 -0 -0 0" mesh="body_front" material="body_front_material"/>
+        <!-- Part battery_enclosure -->
+        <geom type="mesh" class="visual" pos="0.065 0.027 -0.0151091" quat="0.707107 -0 -0.707107 -0" mesh="battery_enclosure" material="battery_enclosure_material"/>
+        <!-- Internal visual part removed to match open duck convention -->
+        <!-- Part turnigy_3s_battery -->
+        <!-- Internal visual part removed to match open duck convention -->
+        <!-- Part body_middle_bottom -->
+        <geom type="mesh" class="visual" pos="-0.019 -0 0.0648909" quat="1 -0 -0 0" mesh="body_middle_bottom" material="body_middle_bottom_material"/>
+        <!-- Part simplified_jetson_nano -->
+        <!-- Internal visual part removed to match open duck convention -->
+        <!-- Part switch -->
+        <!-- Internal visual part removed to match open duck convention -->
+        <!-- Part body_middle_top -->
+        <geom type="mesh" class="visual" pos="-0.019 0 0.0648909" quat="1 0 0 0" mesh="body_middle_top" material="body_middle_top_material"/>
+        <!-- Part body_back -->
+        <geom type="mesh" class="visual" pos="-0.019 0 0.0648909" quat="1 -0 -0 0" mesh="body_back" material="body_back_material"/>
+        <!-- Part bno055 -->
+        <!-- Internal visual part removed to match open duck convention -->
+        <!-- Part roll_bearing -->
+        <!-- Internal visual part removed to match open duck convention -->
+        <!-- Part trunk_bottom -->
+        <geom type="mesh" class="visual" pos="-0.019 0 0.0648909" quat="1 -0 0 0" mesh="trunk_bottom" material="trunk_bottom_material"/>
+        <!-- Part trunk_top -->
+        <geom type="mesh" class="visual" pos="-0.019 -0 0.0648909" quat="1 -0 -0 0" mesh="trunk_top" material="trunk_top_material"/>
+        <!-- Part board -->
+        <!-- Internal visual part removed to match open duck convention -->
+        <!-- Part roll_bearing_2 -->
+        <!-- Internal visual part removed to match open duck convention -->
+        <!-- Part pdb_xt60 -->
+        <!-- Internal visual part removed to match open duck convention -->
+        <!-- Part wj_wk00_0123middlecase_56 -->
+        <!-- Part drive_palonier -->
+        <!-- Part wj_wk00_0124bottomcase_45 -->
+        <!-- Part wj_wk00_0122topcabinetcase_95 -->
+        <!-- Part passive_palonier -->
+        <!-- Part wj_wk00_0123middlecase_56_2 -->
+        <!-- Part drive_palonier_2 -->
+        <!-- Part wj_wk00_0124bottomcase_45_2 -->
+        <!-- Part wj_wk00_0122topcabinetcase_95_2 -->
+        <!-- Part passive_palonier_2 -->
+        <!-- Part wj_wk00_0123middlecase_56_3 -->
+        <!-- Part drive_palonier_3 -->
+        <!-- Part wj_wk00_0124bottomcase_45_3 -->
+        <!-- Part wj_wk00_0122topcabinetcase_95_3 -->
+        <!-- Part passive_palonier_3 -->
+        <!-- Frame trunk -->
+        <site group="3" name="trunk" pos="-0.024 -0 0.0881909" quat="1 -0 -0 0"/>
+        <!-- Frame imu -->
+        <!-- <site group="3" name="imu" pos="-0.040705 -1.715e-09 0.0862909" quat="1 -0 -0 -0"/> -->
+        <!-- Link hip_roll_assembly -->
+        <body name="hip_roll_assembly" pos="-0.019 0.035 0.0459409" quat="1 -0 -0 -0">
+          <!-- Joint from trunk_assembly to hip_roll_assembly -->
+          <!-- left_hip_yaw: range unchanged (same as open duck: ±30°) -->
+          <joint axis="0 0 1" name="left_hip_yaw" type="hinge" range="-0.5235987755981718 0.5235987755984258" class="chosen_actuator"/>
+          <joint name="left_hip_yaw_backlash" pos="0 0 0" axis="0 0 1" class="backlash"/>
+
+          <inertial pos="0.000795081 -5.46541e-06 -0.03306" mass="0.06648" fullinertia="2.44411e-05 2.81818e-05 1.42687e-05 2.357e-09 -3.81059e-07 -7.5e-09"/>
+          <!-- Part roll_motor_bottom -->
+          <geom type="mesh" class="visual" pos="-0 -0.035 0.01905" quat="1 -0 0 -0" mesh="roll_motor_bottom" material="roll_motor_bottom_material"/>
+          <!-- Part roll_motor_top -->
+          <geom type="mesh" class="visual" pos="0 -0.035 0.01905" quat="1 0 0 0" mesh="roll_motor_top" material="roll_motor_top_material"/>
+          <!-- Part wj_wk00_0123middlecase_56_4 -->
+          <!-- Part drive_palonier_4 -->
+          <!-- Part wj_wk00_0124bottomcase_45_4 -->
+          <!-- Part wj_wk00_0122topcabinetcase_95_4 -->
+          <!-- Part passive_palonier_4 -->
+          
+          <!-- Link left_roll_to_pitch_assembly -->
+          <body name="left_roll_to_pitch_assembly" pos="0.01905 0 -0.046015" quat="0.5 -0.5 -0.5 0.5">
+            <!-- Joint from hip_roll_assembly to left_roll_to_pitch_assembly -->
+            <!-- left_hip_roll: range unchanged (same as open duck: ±25°) -->
+            <joint axis="0 0 1" name="left_hip_roll" type="hinge" range="-0.43633231299857883 0.43633231299858594" class="chosen_actuator"/>
+            <joint name="left_hip_roll_backlash" pos="0 0 0" axis="0 0 1" class="backlash"/>
+
+            <inertial pos="0.0507497 -0.000407512 0.0204377" mass="0.07516" fullinertia="2.52682e-05 4.15738e-05 2.82869e-05 1.22744e-07 -7.32857e-07 -1.05692e-07"/>
+            <!-- Part left_roll_to_pitch -->
+            <geom type="mesh" class="visual" pos="-0.035 -0.065 0.01905" quat="0.5 0.5 0.5 -0.5" mesh="left_roll_to_pitch" material="left_roll_to_pitch_material"/>
+            <!-- Part wj_wk00_0123middlecase_56_5 -->
+            <!-- Part drive_palonier_5 -->
+            <!-- Part wj_wk00_0124bottomcase_45_5 -->
+            <!-- Part wj_wk00_0122topcabinetcase_95_5 -->
+            <!-- Part passive_palonier_5 -->
+            
+            <!-- Link knee_and_ankle_assembly -->
+            <!-- CHANGED: quat from 0.270598 -0.653281 -0.270598 0.653281 to 0 -0.707107 0 0.707107 (match open duck pure 90° rotation) -->
+            <body name="knee_and_ankle_assembly" pos="0.07415 -0 0.03511" quat="0 -0.707107 0 0.707107">
+              <!-- Joint from left_roll_to_pitch_assembly to knee_and_ankle_assembly -->
+              <!-- CHANGED: left_hip_pitch range from [-0.44, 1.31] to [-1.22, 0.52] to match open duck -->
+              <joint axis="0 0 1" name="left_hip_pitch" type="hinge" range="-1.2217304763960306 0.5235987755982988" class="chosen_actuator"/>
+              <joint name="left_hip_pitch_backlash" pos="0 0 0" axis="0 0 1" class="backlash"/>
+              <inertial pos="0.00253369 -0.0390636 0.0102776" mass="0.12407" fullinertia="0.000211406 7.83759e-05 0.000225619 -2.68706e-05 3.81906e-06 2.08009e-05"/>
+              <!-- Part left_cache -->
+              <geom type="mesh" class="visual" pos="0.01606 0.065 0.10915" quat="0.707107 -0.707107 -0 0" mesh="left_cache" material="left_cache_material"/>
+              <!-- Part leg_spacer -->
+              <geom type="mesh" class="visual" pos="0.01606 0.14365 0.10925" quat="0.707107 -0.707107 -0 0" mesh="leg_spacer" material="leg_spacer_material"/>
+              <!-- Part left_knee_to_ankle_right_sheet -->
+              <geom type="mesh" class="visual" pos="0.01606 0.14365 0.10915" quat="0.707107 -0.707107 -0 0" mesh="left_knee_to_ankle_right_sheet" material="left_knee_to_ankle_right_sheet_material"/>
+              <!-- Part left_knee_to_ankle_left_sheet -->
+              <geom type="mesh" class="visual" pos="0.01606 0.14365 0.10915" quat="0.707107 -0.707107 0 -0" mesh="left_knee_to_ankle_left_sheet" material="left_knee_to_ankle_left_sheet_material"/>
+              <!-- Part wj_wk00_0123middlecase_56_6 -->
+              <!-- Part drive_palonier_6 -->
+              <!-- Part wj_wk00_0124bottomcase_45_6 -->
+              <!-- Part wj_wk00_0122topcabinetcase_95_6 -->
+              <!-- Part passive_palonier_6 -->
+              
+              <!-- Link knee_and_ankle_assembly_2 -->
+              <!-- CHANGED: quat from 0.707107 0 0 0.707107 to 1 0 0 0 (match open duck identity) -->
+              <body name="knee_and_ankle_assembly_2" pos="-0 -0.07865 0.0001" quat="1 0 0 0">
+                <!-- Joint from knee_and_ankle_assembly to knee_and_ankle_assembly_2 -->
+                <!-- CHANGED: left_knee range from [-3.14, 0.0] to [-1.57, 1.57] to match open duck -->
+                <joint axis="0 0 1" name="left_knee" type="hinge" range="-1.5707963267948966 1.5707963267948966" class="chosen_actuator"/>
+                <joint name="left_knee_backlash" pos="0 0 0" axis="0 0 1" class="backlash"/>
+
+                <inertial pos="5.01859e-06 -0.0577465 0.0181136" mass="0.07259" fullinertia="4.99575e-05 1.87273e-05 4.23932e-05 1.0382e-08 2.252e-09 8.8105e-08"/>
+                <!-- Part leg_spacer_2 -->
+                <geom type="mesh" class="visual" pos="0.01606 0.14365 0.10925" quat="0.707107 -0.707107 -0 0" mesh="leg_spacer" material="leg_spacer_material"/>
+                <!-- Part left_knee_to_ankle_right_sheet_2 -->
+                <geom type="mesh" class="visual" pos="0.01606 0.14365 0.10915" quat="0.707107 -0.707107 -0 0" mesh="left_knee_to_ankle_right_sheet" material="left_knee_to_ankle_right_sheet_material"/>
+                <!-- Part left_knee_to_ankle_left_sheet_2 -->
+                <geom type="mesh" class="visual" pos="0.01606 0.14365 0.10915" quat="0.707107 -0.707107 -0 0" mesh="left_knee_to_ankle_left_sheet" material="left_knee_to_ankle_left_sheet_material"/>
+                <!-- Part wj_wk00_0123middlecase_56_7 -->
+                <!-- Part drive_palonier_7 -->
+                <!-- Part wj_wk00_0124bottomcase_45_7 -->
+                <!-- Part wj_wk00_0122topcabinetcase_95_7 -->
+                <!-- Part passive_palonier_7 -->
+                
+                <!-- Link foot_assembly -->
+                <!-- CHANGED: quat from 0.92388 0 0 -0.382683 to 1 0 0 0 (match open duck identity) -->
+                <body name="foot_assembly" pos="-0 -0.07865 0.0001" quat="1 0 0 0">
+                  <!-- Joint from knee_and_ankle_assembly_2 to foot_assembly -->
+                  <!-- CHANGED: left_ankle range from [-0.79, 2.36] to [-1.57, 1.57] to match open duck -->
+                  <joint axis="0 0 1" name="left_ankle" type="hinge" range="-1.5707963267948966 1.5707963267948966" class="chosen_actuator"/>
+                  <joint name="left_ankle_backlash" pos="0 0 0" axis="0 0 1" class="backlash"/>
+                  <inertial pos="0.0110718 -0.0246608 0.0190626" mass="0.07524" fullinertia="1.87482e-05 6.74427e-05 6.061e-05 1.58839e-06 -6.524e-09 5.6739e-08"/>
+                  <!-- Part foot_side -->
+                  <geom type="mesh" class="visual" pos="0.01606 0.2223 0.10905" quat="0.707107 -0.707107 0 -0" mesh="foot_side" material="foot_side_material"/>
+                  <!-- Part foot_bottom_tpu -->
+                  <geom type="mesh" class="visual" pos="0.01656 0.2228 0.10955" quat="0.707107 -0.707107 0 -0" mesh="foot_bottom_tpu" material="foot_bottom_tpu_material"/>
+                  <geom name="left_foot_bottom_tpu" type="mesh" class="collision" pos="0.01656 0.2228 0.10955" quat="0.707107 -0.707107 0 -0" mesh="foot_bottom_tpu" material="foot_bottom_tpu_material"/>
+                  <!-- Part foot_bottom_pla -->
+                  <geom type="mesh" class="visual" pos="0.01656 0.2228 0.10955" quat="0.707107 -0.707107 0 -0" mesh="foot_bottom_pla" material="foot_bottom_pla_material"/>
+                  <!-- Part foot_top -->
+                  <geom type="mesh" class="visual" pos="0.01606 0.2223 0.10905" quat="0.707107 -0.707107 0 -0" mesh="foot_top" material="foot_top_material"/>
+                  <!-- Frame left_foot -->
+                  <site group="3" name="left_foot" pos="0.0005 -0.036225 0.01955" quat="0.707107 -0.707107 -0 0"/>
+                </body>
+              </body>
+            </body>
+          </body>
+        </body>
+        
+        <!-- Link neck_pitch_assembly -->
+        <!-- CHANGED: quat from 0.653281 0.653281 -0.270598 0.270598 to 0.707107 0.707107 0 0 (match open duck pure rotation) -->
+        <body name="neck_pitch_assembly" pos="0.001 0.01915 0.0900009" quat="0.707107 0.707107 0 0">
+          <!-- Joint from trunk_assembly to neck_pitch_assembly -->
+          <!-- CHANGED: neck_pitch range from [-1.13, 0.35] to [-0.35, 1.13] to match open duck -->
+          <joint axis="0 0 1" name="neck_pitch" type="hinge" range="-0.3490658503988437 1.1344640137963364" class="chosen_actuator"/>
+
+          <inertial pos="-5.63137e-06 0.0492968 0.0181786" mass="0.06618" fullinertia="3.49456e-05 1.70231e-05 2.80043e-05 8.756e-09 -2.156e-09 -1.8519e-08"/>
+          <!-- Part neck_left_sheet -->
+          <geom type="mesh" class="visual" pos="-0.02 -0.02511 0.01905" quat="0.707107 -0.707107 0 0" mesh="neck_left_sheet" material="neck_left_sheet_material"/>
+          <!-- Part neck_right_sheet -->
+          <geom type="mesh" class="visual" pos="-0.02 -0.02511 0.01905" quat="0.707107 -0.707107 0 -0" mesh="neck_right_sheet" material="neck_right_sheet_material"/>
+          <!-- Part wj_wk00_0123middlecase_56_8 -->
+          <!-- Part drive_palonier_8 -->
+          <!-- Part wj_wk00_0124bottomcase_45_8 -->
+          <!-- Part wj_wk00_0122topcabinetcase_95_8 -->
+          <!-- Part passive_palonier_8 -->
+          
+          <!-- Link head_pitch_to_yaw -->
+          <!-- CHANGED: quat from 0.92388 0 0 -0.382683 to 1 0 0 0 (match open duck identity) -->
+          <body name="head_pitch_to_yaw" pos="0 0.066 -0" quat="1 0 0 0">
+            <!-- Joint from neck_pitch_assembly to head_pitch_to_yaw -->
+            <!-- CHANGED: head_pitch range from [0.0, 1.57] to [-0.79, 0.79] to match open duck -->
+            <joint axis="0 0 1" name="head_pitch" type="hinge" range="-0.7853981633974483 0.7853981633974483" class="chosen_actuator"/>
+            
+            <inertial pos="-0.00766247 0.026015 0.0186681" mass="0.0169378" fullinertia="9.43036e-06 4.64763e-06 8.02915e-06 1.35195e-06 3.059e-08 -8.428e-08"/>
+            <!-- Part head_pitch_to_yaw -->
+            <geom type="mesh" class="visual" pos="-0.02 -0.09111 0.01905" quat="0.707107 -0.707107 0 0" mesh="head_pitch_to_yaw" material="head_pitch_to_yaw_material"/>
+            <!-- Link neck_yaw_assembly -->
+            <body name="neck_yaw_assembly" pos="-0 0.057 0.01905" quat="0.707107 -0.707107 -0 0">
+              <!-- Joint from head_pitch_to_yaw to neck_yaw_assembly -->
+              <!-- head_yaw: range unchanged (same as open duck: ±160°) -->
+              <joint axis="0 0 1" name="head_yaw" type="hinge" range="-2.7925268031909254 2.792526803190929" class="chosen_actuator"/>
+              <inertial pos="0.00412907 3.95745e-06 -0.0222828" mass="0.0918099" fullinertia="3.11706e-05 6.94935e-05 7.04025e-05 4.294e-09 -4.41251e-06 -3.82e-09"/>
+              <!-- Part head_yaw_to_roll -->
+              <geom type="mesh" class="visual" pos="-0.02 -0 -0.14821" quat="1 0 -0 0" mesh="head_yaw_to_roll" material="head_yaw_to_roll_material"/>
+              <!-- Part wj_wk00_0123middlecase_56_9 -->
+              <!-- Part drive_palonier_9 -->
+              <!-- Part wj_wk00_0124bottomcase_45_9 -->
+              <!-- Part wj_wk00_0122topcabinetcase_95_9 -->
+              <!-- Part passive_palonier_9 -->
+              <!-- Link head_assembly -->
+              <body name="head_assembly" pos="0.04095 0 -0.01915" quat="0.707107 0 -0.707107 0">
+                <!-- Joint from neck_yaw_assembly to head_assembly -->
+                <!-- head_roll: range unchanged (same as open duck: ±30°) -->
+                <joint axis="0 0 1" name="head_roll" type="hinge" range="-0.5235987755982988 0.5235987755982988" class="chosen_actuator"/>
+                <inertial pos="0.00970265 -0.00377267 0.0145742" mass="0.456841" fullinertia="0.00288287 0.00188338 0.00130444 3.89528e-07 8.34554e-05 -1.45622e-06"/>
+                <!-- Part right_antenna_holder -->
+                <geom type="mesh" class="visual" pos="-0.12906 -0 0.06095" quat="0.707107 -0 0.707107 0" mesh="right_antenna_holder" material="right_antenna_holder_material"/>
+                <!-- Part antenna -->
+                <geom type="mesh" class="visual" pos="-0.0830595 0.182212 0.06095" quat="0.685585 0.173128 0.685585 -0.173128" mesh="antenna" material="antenna_material"/>
+                <!-- Part antenna_2 -->
+                <geom type="mesh" class="visual" pos="-0.12808 0.000247519 0.06095" quat="0.707107 -0 0.707107 0" mesh="antenna" material="antenna_material"/>
+                <!-- Part left_antenna_holder -->
+                <geom type="mesh" class="visual" pos="-0.12906 -0 0.06095" quat="0.707107 -0 0.707107 0" mesh="left_antenna_holder" material="left_antenna_holder_material"/>
+                <!-- Part usb_camera_ov2710 -->
+                <!-- Internal visual part removed to match open duck convention -->
+                <!-- Part head_bot_sheet -->
+                <geom type="mesh" class="visual" pos="-0.12906 -0 0.06095" quat="0.707107 -0 0.707107 -0" mesh="head_bot_sheet" material="head_bot_sheet_material"/>
+                <!-- Part head_2 -->
+                <geom type="mesh" class="visual" pos="-0.12906 -0 0.06095" quat="0.707107 -0 0.707107 -0" mesh="head" material="head_material"/>
+                <!-- Part flash_reflector_interface -->
+                <!-- Internal visual part removed to match open duck convention -->
+                <!-- Part bulb -->
+                <!-- Part glass -->
+                <!-- Part head_roll_mount -->
+                <!-- Part left_eye -->
+                <!-- Part flash_light_module -->
+                <!-- Part full_speaker -->
+                <!-- Part roll_bearing_3 -->
+                <!-- Part sg90 -->
+                <!-- Part glass_2 -->
+                <!-- Part sg90_2 -->
+                <!-- Part bulb_2 -->
+                <!-- Part speaker_interface -->
+                <!-- Part speaker_stand -->
+                <!-- Part right_eye -->
+                <!-- Part usb_camera_ov2710_2 -->
+                <!-- Part glass_3 -->
+                <!-- Part glass_4 -->
+                <!-- Part wj_wk00_0123middlecase_56_10 -->
+                <!-- Part drive_palonier_10 -->
+                <!-- Part wj_wk00_0124bottomcase_45_10 -->
+                <!-- Part wj_wk00_0122topcabinetcase_95_10 -->
+                <!-- Part passive_palonier_10 -->
+                <!-- Frame head -->
+                <site group="3" name="head" pos="0.04245 -0 0.03595" quat="0.707107 -0 0.707107 -0"/>
+              </body>
+            </body>
+          </body>
+        </body>
+        <!-- Link hip_roll_assembly_2 -->
+        <body name="hip_roll_assembly_2" pos="-0.019 -0.035 0.0459409" quat="1 -0 -0 0">
+          <!-- Joint from trunk_assembly to hip_roll_assembly_2 -->
+          <!-- right_hip_yaw: range unchanged (same as open duck: ±30°) -->
+          <joint axis="0 0 1" name="right_hip_yaw" type="hinge" range="-0.5235987755982962 0.5235987755983015" class="chosen_actuator"/>
+          <joint name="right_hip_yaw_backlash" pos="0 0 0" axis="0 0 1" class="backlash"/>
+
+          <inertial pos="0.000795081 -5.46541e-06 -0.03306" mass="0.06648" fullinertia="2.44411e-05 2.81818e-05 1.42687e-05 2.357e-09 -3.81059e-07 -7.5e-09"/>
+          <!-- Part roll_motor_bottom_2 -->
+          <geom type="mesh" class="visual" pos="-0 -0.035 0.01905" quat="1 0 -0 -0" mesh="roll_motor_bottom" material="roll_motor_bottom_material"/>
+          <!-- Part roll_motor_top_2 -->
+          <geom type="mesh" class="visual" pos="-0 -0.035 0.01905" quat="1 0 0 0" mesh="roll_motor_top" material="roll_motor_top_material"/>
+          <!-- Part wj_wk00_0123middlecase_56_11 -->
+          <!-- Part drive_palonier_11 -->
+          <!-- Part wj_wk00_0124bottomcase_45_11 -->
+          <!-- Part wj_wk00_0122topcabinetcase_95_11 -->
+          <!-- Part passive_palonier_11 -->
+          <!-- Link right_roll_to_pitch_assembly -->
+          <body name="right_roll_to_pitch_assembly" pos="0.01905 0 -0.046015" quat="0.5 -0.5 -0.5 0.5">
+            <!-- Joint from hip_roll_assembly_2 to right_roll_to_pitch_assembly -->
+            <!-- right_hip_roll: range unchanged (same as open duck: ±25°) -->
+            <joint axis="0 0 1" name="right_hip_roll" type="hinge" range="-0.4363323129985753 0.4363323129985895" class="chosen_actuator"/>
+            <joint name="right_hip_roll_backlash" pos="0 0 0" axis="0 0 1" class="backlash"/>
+
+            <inertial pos="-0.0507497 -0.000417205 0.0204377" mass="0.07516" fullinertia="2.52676e-05 4.15738e-05 2.82863e-05 -1.31172e-07 7.32857e-07 -8.9468e-08"/>
+            <!-- Part right_roll_to_pitch -->
+            <geom type="mesh" class="visual" pos="0.035 -0.065 0.01905" quat="0.5 0.5 0.5 -0.5" mesh="right_roll_to_pitch" material="right_roll_to_pitch_material"/>
+            <!-- Part wj_wk00_0123middlecase_56_12 -->
+            <!-- Part drive_palonier_12 -->
+            <!-- Part wj_wk00_0124bottomcase_45_12 -->
+            <!-- Part wj_wk00_0122topcabinetcase_95_12 -->
+            <!-- Part passive_palonier_12 -->
+            <!-- Link knee_and_ankle_assembly_3 -->
+            <!-- CHANGED: quat from 0.653281 0.270598 0.653281 0.270598 to 0.707107 0 0.707107 0 (match open duck pure 90° rotation) -->
+            <body name="knee_and_ankle_assembly_3" pos="-0.07415 -0 0.03511" quat="0.707107 0 0.707107 0">
+              <!-- Joint from right_roll_to_pitch_assembly to knee_and_ankle_assembly_3 -->
+              <!-- CHANGED: right_hip_pitch range from [-1.31, 0.44] to [-0.52, 1.22] to match open duck -->
+              <joint axis="0 0 1" name="right_hip_pitch" type="hinge" range="-0.5235987755982988 1.2217304763960306" class="chosen_actuator"/>
+              <joint name="right_hip_pitch_backlash" pos="0 0 0" axis="0 0 1" class="backlash"/>
+
+              <inertial pos="0.00253369 0.0390636 0.010809" mass="0.12407" fullinertia="0.000212363 7.93324e-05 0.000225619 2.68706e-05 3.9656e-06 -2.17407e-05"/>
+              <!-- Part right_cache -->
+              <geom type="mesh" class="visual" pos="0.01606 -0.065 0.1092" quat="0.707107 0.707107 -0 0" mesh="right_cache" material="right_cache_material"/>
+              <!-- Part leg_spacer_3 -->
+              <geom type="mesh" class="visual" pos="0.01606 -0.14365 -0.07215" quat="0.707107 0.707107 -0 0" mesh="leg_spacer" material="leg_spacer_material"/>
+              <!-- Part left_knee_to_ankle_right_sheet_3 -->
+              <geom type="mesh" class="visual" pos="0.01606 -0.14365 -0.07205" quat="0.707107 0.707107 0 0" mesh="left_knee_to_ankle_right_sheet" material="left_knee_to_ankle_right_sheet_material"/>
+              <!-- Part left_knee_to_ankle_left_sheet_3 -->
+              <geom type="mesh" class="visual" pos="0.01606 -0.14365 -0.07205" quat="0.707107 0.707107 0 0" mesh="left_knee_to_ankle_left_sheet" material="left_knee_to_ankle_left_sheet_material"/>
+              <!-- Part wj_wk00_0123middlecase_56_13 -->
+              <!-- Part drive_palonier_13 -->
+              <!-- Part wj_wk00_0124bottomcase_45_13 -->
+              <!-- Part wj_wk00_0122topcabinetcase_95_13 -->
+              <!-- Part passive_palonier_13 -->
+              <!-- Link knee_and_ankle_assembly_4 -->
+              <!-- CHANGED: quat from 0 -0.707107 0.707107 0 to 0 1 0 0 (match open duck) -->
+              <body name="knee_and_ankle_assembly_4" pos="-0 0.07865 0.037" quat="0 1 0 0">
+                <!-- Joint from knee_and_ankle_assembly_3 to knee_and_ankle_assembly_4 -->
+                <!-- CHANGED: right_knee range from [-3.14, 0.0] to [-1.57, 1.57] to match open duck -->
+                <joint axis="0 0 1" name="right_knee" type="hinge" range="-1.5707963267948966 1.5707963267948966" class="chosen_actuator"/>
+                <joint name="right_knee_backlash" pos="0 0 0" axis="0 0 1" class="backlash"/>
+
+                <inertial pos="5.01859e-06 -0.0577465 0.0181136" mass="0.07259" fullinertia="4.99575e-05 1.87273e-05 4.23932e-05 1.0382e-08 2.252e-09 8.8105e-08"/>
+                <!-- Part leg_spacer_4 -->
+                <geom type="mesh" class="visual" pos="0.01606 0.14365 0.10925" quat="0.707107 -0.707107 0 -0" mesh="leg_spacer" material="leg_spacer_material"/>
+                <!-- Part left_knee_to_ankle_right_sheet_4 -->
+                <geom type="mesh" class="visual" pos="0.01606 0.14365 0.10915" quat="0.707107 -0.707107 0 -0" mesh="left_knee_to_ankle_right_sheet" material="left_knee_to_ankle_right_sheet_material"/>
+                <!-- Part left_knee_to_ankle_left_sheet_4 -->
+                <geom type="mesh" class="visual" pos="0.01606 0.14365 0.10915" quat="0.707107 -0.707107 0 0" mesh="left_knee_to_ankle_left_sheet" material="left_knee_to_ankle_left_sheet_material"/>
+                <!-- Part wj_wk00_0123middlecase_56_14 -->
+                <!-- Part drive_palonier_14 -->
+                <!-- Part wj_wk00_0124bottomcase_45_14 -->
+                <!-- Part wj_wk00_0122topcabinetcase_95_14 -->
+                <!-- Part passive_palonier_14 -->
+                <!-- Link foot_assembly_2 -->
+                <!-- CHANGED: quat from 0.92388 0 0 -0.382683 to 1 0 0 0 (match open duck identity) -->
+                <body name="foot_assembly_2" pos="-0 -0.07865 0.0001" quat="1 0 0 0">
+                  <!-- Joint from knee_and_ankle_assembly_4 to foot_assembly_2 -->
+                  <!-- CHANGED: right_ankle range from [-0.79, 2.36] to [-1.57, 1.57] to match open duck -->
+                  <joint axis="0 0 1" name="right_ankle" type="hinge" range="-1.5707963267948966 1.5707963267948966" class="chosen_actuator"/>
+                  <joint name="right_ankle_backlash" pos="0 0 0" axis="0 0 1" class="backlash"/>
+
+                  <inertial pos="0.0110718 -0.0246608 0.0190626" mass="0.07524" fullinertia="1.87482e-05 6.74427e-05 6.061e-05 1.58839e-06 -6.524e-09 5.6739e-08"/>
+                  <!-- Part foot_side_2 -->
+                  <geom type="mesh" class="visual" pos="0.01606 0.2223 0.10905" quat="0.707107 -0.707107 0 0" mesh="foot_side" material="foot_side_material"/>
+                  <!-- Part foot_bottom_tpu_2 -->
+                  <geom type="mesh" class="visual" pos="0.01656 0.2228 0.10955" quat="0.707107 -0.707107 0 0" mesh="foot_bottom_tpu" material="foot_bottom_tpu_material"/>
+                  <geom name="right_foot_bottom_tpu" type="mesh" class="collision" pos="0.01656 0.2228 0.10955" quat="0.707107 -0.707107 0 0" mesh="foot_bottom_tpu" material="foot_bottom_tpu_material"/>
+                  <!-- Part foot_bottom_pla_2 -->
+                  <geom type="mesh" class="visual" pos="0.01656 0.2228 0.10955" quat="0.707107 -0.707107 0 0" mesh="foot_bottom_pla" material="foot_bottom_pla_material"/>
+                  <!-- Part foot_top_2 -->
+                  <geom type="mesh" class="visual" pos="0.01606 0.2223 0.10905" quat="0.707107 -0.707107 0 0" mesh="foot_top" material="foot_top_material"/>
+                  <!-- Frame right_foot -->
+                  <site group="3" name="right_foot" pos="0.0005 -0.036225 0.01955" quat="0.707107 -0.707107 0 0"/>
+                </body>
+              </body>
+            </body>
+          </body>
+        </body>
+      </body>
+    </body>
+  </worldbody>
+  <asset>
+    <mesh file="left_cache.stl"/>
+    <mesh file="simplified_jetson_nano.stl"/>
+    <mesh file="head_pitch_to_yaw.stl"/>
+    <mesh file="glass.stl"/>
+    <mesh file="wj_wk00_0122topcabinetcase_95.stl"/>
+    <mesh file="left_knee_to_ankle_left_sheet.stl"/>
+    <mesh file="battery_enclosure.stl"/>
+    <mesh file="left_eye.stl"/>
+    <mesh file="turnigy_3s_battery.stl"/>
+    <mesh file="antenna.stl"/>
+    <mesh file="body_front.stl"/>
+    <mesh file="roll_motor_top.stl"/>
+    <mesh file="right_cache.stl"/>
+    <mesh file="left_knee_to_ankle_right_sheet.stl"/>
+    <mesh file="jetson_nano_baseplate.stl"/>
+    <mesh file="wj_wk00_0123middlecase_56.stl"/>
+    <mesh file="neck_left_sheet.stl"/>
+    <mesh file="head.stl"/>
+    <mesh file="foot_bottom_tpu.stl"/>
+    <mesh file="flash_light_module.stl"/>
+    <mesh file="passive_palonier.stl"/>
+    <mesh file="drive_palonier.stl"/>
+    <mesh file="head_yaw_to_roll.stl"/>
+    <mesh file="flash_reflector_interface.stl"/>
+    <mesh file="full_speaker.stl"/>
+    <mesh file="switch.stl"/>
+    <mesh file="body_back.stl"/>
+    <mesh file="roll_motor_bottom.stl"/>
+    <mesh file="left_antenna_holder.stl"/>
+    <mesh file="right_eye.stl"/>
+    <mesh file="neck_right_sheet.stl"/>
+    <mesh file="bno055.stl"/>
+    <mesh file="left_roll_to_pitch.stl"/>
+    <mesh file="head_roll_mount.stl"/>
+    <mesh file="trunk_bottom.stl"/>
+    <mesh file="trunk_top.stl"/>
+    <mesh file="foot_side.stl"/>
+    <mesh file="right_antenna_holder.stl"/>
+    <mesh file="foot_bottom_pla.stl"/>
+    <mesh file="bulb.stl"/>
+    <mesh file="leg_spacer.stl"/>
+    <mesh file="foot_top.stl"/>
+    <mesh file="sg90.stl"/>
+    <mesh file="pdb_xt60.stl"/>
+    <mesh file="board.stl"/>
+    <mesh file="speaker_stand.stl"/>
+    <mesh file="usb_camera_ov2710.stl"/>
+    <mesh file="body_middle_top.stl"/>
+    <mesh file="wj_wk00_0124bottomcase_45.stl"/>
+    <mesh file="head_bot_sheet.stl"/>
+    <mesh file="right_roll_to_pitch.stl"/>
+    <mesh file="speaker_interface.stl"/>
+    <mesh file="body_middle_bottom.stl"/>
+    <mesh file="roll_bearing.stl"/>
+    <material name="jetson_nano_baseplate_material" rgba="0.796078 0.823529 0.937255 1"/>
+    <material name="body_front_material" rgba="0.917647 0.917647 0.917647 1"/>
+    <material name="battery_enclosure_material" rgba="0.901961 0.901961 0.901961 1"/>
+    <material name="turnigy_3s_battery_material" rgba="0.901961 0.901961 0.901961 1"/>
+    <material name="body_middle_bottom_material" rgba="0.917647 0.917647 0.917647 1"/>
+    <material name="simplified_jetson_nano_material" rgba="0.901961 0.901961 0.901961 1"/>
+    <material name="switch_material" rgba="0.972549 0.529412 0.00392157 1"/>
+    <material name="body_middle_top_material" rgba="0.917647 0.917647 0.917647 1"/>
+    <material name="body_back_material" rgba="0.917647 0.917647 0.917647 1"/>
+    <material name="bno055_material" rgba="0.615686 0.811765 0.929412 1"/>
+    <material name="roll_bearing_material" rgba="0.6 0.6 0.6 1"/>
+    <material name="trunk_bottom_material" rgba="0.180392 0.180392 0.180392 1"/>
+    <material name="trunk_top_material" rgba="0.180392 0.180392 0.180392 1"/>
+    <material name="board_material" rgba="0 0.501961 0 1"/>
+    <material name="pdb_xt60_material" rgba="0.615686 0.811765 0.929412 1"/>
+    <material name="wj_wk00_0123middlecase_56_material" rgba="0.247059 0.243137 0.243137 1"/>
+    <material name="drive_palonier_material" rgba="0.623529 0.666667 0.701961 1"/>
+    <material name="wj_wk00_0124bottomcase_45_material" rgba="0.247059 0.243137 0.243137 1"/>
+    <material name="wj_wk00_0122topcabinetcase_95_material" rgba="0.247059 0.243137 0.243137 1"/>
+    <material name="passive_palonier_material" rgba="0.623529 0.666667 0.701961 1"/>
+    <material name="roll_motor_bottom_material" rgba="0.647059 0.647059 0.647059 1"/>
+    <material name="roll_motor_top_material" rgba="0.901961 0.901961 0.901961 1"/>
+    <material name="left_roll_to_pitch_material" rgba="0.909804 0.572549 0.164706 1"/>
+    <material name="left_cache_material" rgba="0.917647 0.917647 0.917647 1"/>
+    <material name="leg_spacer_material" rgba="0.647059 0.647059 0.647059 1"/>
+    <material name="left_knee_to_ankle_right_sheet_material" rgba="0.223529 0.219608 0.219608 1"/>
+    <material name="left_knee_to_ankle_left_sheet_material" rgba="0.223529 0.219608 0.219608 1"/>
+    <material name="foot_side_material" rgba="0.980392 0.713725 0.00392157 1"/>
+    <material name="foot_bottom_tpu_material" rgba="0.305882 0.298039 0.278431 1"/>
+    <material name="foot_bottom_pla_material" rgba="0.305882 0.298039 0.278431 1"/>
+    <material name="foot_top_material" rgba="0.980392 0.713725 0.00392157 1"/>
+    <material name="neck_left_sheet_material" rgba="0.223529 0.219608 0.219608 1"/>
+    <material name="neck_right_sheet_material" rgba="0.223529 0.219608 0.219608 1"/>
+    <material name="head_pitch_to_yaw_material" rgba="0.4 0.4 0.4 1"/>
+    <material name="head_yaw_to_roll_material" rgba="0.647059 0.647059 0.647059 1"/>
+    <material name="right_antenna_holder_material" rgba="0.980392 0.713725 0.00392157 1"/>
+    <material name="antenna_material" rgba="0.647059 0.647059 0.647059 1"/>
+    <material name="left_antenna_holder_material" rgba="0.980392 0.713725 0.00392157 1"/>
+    <material name="usb_camera_ov2710_material" rgba="0.615686 0.811765 0.929412 1"/>
+    <material name="head_bot_sheet_material" rgba="0.647059 0.647059 0.647059 1"/>
+    <material name="head_material" rgba="0.917647 0.917647 0.917647 1"/>
+    <material name="flash_reflector_interface_material" rgba="0.647059 0.647059 0.647059 1"/>
+    <material name="bulb_material" rgba="0.972549 0.529412 0.00392157 1"/>
+    <material name="glass_material" rgba="0.760784 0.839216 0.92549 0.909804"/>
+    <material name="head_roll_mount_material" rgba="0.501961 0.501961 0.501961 1"/>
+    <material name="left_eye_material" rgba="0.498039 0.498039 0.498039 1"/>
+    <material name="flash_light_module_material" rgba="0.34902 0.376471 0.4 1"/>
+    <material name="full_speaker_material" rgba="0.647059 0.647059 0.647059 1"/>
+    <material name="sg90_material" rgba="0.435294 0.670588 0.976471 0.827451"/>
+    <material name="speaker_interface_material" rgba="0.615686 0.811765 0.929412 1"/>
+    <material name="speaker_stand_material" rgba="0.980392 0.713725 0.00392157 1"/>
+    <material name="right_eye_material" rgba="0.34902 0.376471 0.4 1"/>
+    <material name="right_roll_to_pitch_material" rgba="0.909804 0.572549 0.164706 1"/>
+    <material name="right_cache_material" rgba="0.917647 0.917647 0.917647 1"/>
+  </asset>
+  <actuator>
+    <position class="chosen_actuator" name="left_hip_yaw" joint="left_hip_yaw" inheritrange="1"/>
+    <position class="chosen_actuator" name="left_hip_roll" joint="left_hip_roll" inheritrange="1"/>
+    <position class="chosen_actuator" name="left_hip_pitch" joint="left_hip_pitch" inheritrange="1"/>
+    <position class="chosen_actuator" name="left_knee" joint="left_knee" inheritrange="1"/>
+    <position class="chosen_actuator" name="left_ankle" joint="left_ankle" inheritrange="1"/>
+    <position class="chosen_actuator" name="neck_pitch" joint="neck_pitch" inheritrange="1"/>
+    <position class="chosen_actuator" name="head_pitch" joint="head_pitch" inheritrange="1"/>
+    <position class="chosen_actuator" name="head_yaw" joint="head_yaw" inheritrange="1"/>
+    <position class="chosen_actuator" name="head_roll" joint="head_roll" inheritrange="1"/>
+    <position class="chosen_actuator" name="right_hip_yaw" joint="right_hip_yaw" inheritrange="1"/>
+    <position class="chosen_actuator" name="right_hip_roll" joint="right_hip_roll" inheritrange="1"/>
+    <position class="chosen_actuator" name="right_hip_pitch" joint="right_hip_pitch" inheritrange="1"/>
+    <position class="chosen_actuator" name="right_knee" joint="right_knee" inheritrange="1"/>
+    <position class="chosen_actuator" name="right_ankle" joint="right_ankle" inheritrange="1"/>
+  </actuator>
+  <equality/>
+</mujoco>

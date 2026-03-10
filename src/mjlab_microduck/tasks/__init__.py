@@ -25,6 +25,10 @@ from .microduck_velocity_env_cfg import (
     make_microduck_velocity_env_cfg,
     MicroduckRlCfg,
 )
+from .waddle_velocity_env_cfg import (
+    make_waddle_velocity_env_cfg,
+    WaddleRlCfg,
+)
 from .microduck_imitation_env_cfg import (
     make_microduck_imitation_env_cfg,
     MicroduckImitationRlCfg,
@@ -54,6 +58,24 @@ register_mjlab_task(
     rl_cfg=MicroduckRlCfg,
     runner_cls=MicroduckOnPolicyRunner,
 )
+
+register_mjlab_task(
+    task_id="Mjlab-Velocity-Flat-Waddle",
+    env_cfg=make_waddle_velocity_env_cfg(),
+    play_env_cfg=make_waddle_velocity_env_cfg(play=True),
+    rl_cfg=WaddleRlCfg,
+    runner_cls=MicroduckOnPolicyRunner,
+)
+print("[OK] Waddle task registered: Mjlab-Velocity-Flat-Waddle")
+
+register_mjlab_task(
+    task_id="Mjlab-Velocity-Rough-Waddle",
+    env_cfg=make_waddle_velocity_env_cfg(rough=True),
+    play_env_cfg=make_waddle_velocity_env_cfg(play=True, rough=True),
+    rl_cfg=WaddleRlCfg,
+    runner_cls=MicroduckOnPolicyRunner,
+)
+print("[OK] Waddle task registered: Mjlab-Velocity-Rough-Waddle")
 
 # Stand-up task — robot starts inverted (lying on back) and must stand up
 register_mjlab_task(

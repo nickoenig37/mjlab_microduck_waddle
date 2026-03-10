@@ -1,0 +1,14 @@
+{
+    "configuration": "default",
+    "documentId": "f7b213b139e1c06737f4ecbc",
+    "documentMicroversion": "8d5486ae241b82c5fdb405f2",
+    "documentVersion": "9f741ecc484e3a47b82c1b49",
+    "elementId": "aed3b59b696d00e8420c2c16",
+    "fullConfiguration": "default",
+    "id": "M6IVbXo2Ad+eeY+tO",
+    "isStandardContent": false,
+    "name": "jetson_nano_baseplate <4>",
+    "partId": "JFD",
+    "suppressed": false,
+    "type": "Part"
+}

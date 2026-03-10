@@ -1,0 +1,14 @@
+{
+    "configuration": "default",
+    "documentId": "c392fd7a980aca00225400af",
+    "documentMicroversion": "62937389a769b45e1b09a2de",
+    "documentVersion": "f3f2d5ac8647a47712a6ba59",
+    "elementId": "748dd6c8437cdc3088c949c6",
+    "fullConfiguration": "default",
+    "id": "MalpkMV75shxEGC7s",
+    "isStandardContent": false,
+    "name": "Turnigy_3S_Battery <1>",
+    "partId": "JFH",
+    "suppressed": false,
+    "type": "Part"
+}

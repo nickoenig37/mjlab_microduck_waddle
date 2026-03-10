@@ -138,6 +138,8 @@ All tasks are registered via the plugin entry point `mjlab.tasks` in `pyproject.
 |---------|---------|-------------|
 | `Mjlab-Velocity-Flat-MicroDuck` | Flat | Velocity tracking on flat ground |
 | `Mjlab-Velocity-Rough-MicroDuck` | Rough | Velocity tracking on rough terrain |
+| `Mjlab-Velocity-Flat-Waddle` | Flat | Velocity tracking for the Open Duck Waddle robot |
+| `Mjlab-Velocity-Rough-Waddle` | Rough | Velocity tracking for the Open Duck Waddle robot on rough terrain |
 | `Mjlab-StandUp-Flat-MicroDuck` | Flat | Stand-up from inverted position |
 | `Mjlab-StandUp-Rough-MicroDuck` | Rough | Stand-up on rough terrain |
 | `Mjlab-GroundPick-Flat-MicroDuck` | Flat | Crouch & touch ground with mouth |
@@ -154,10 +156,17 @@ uv run train --help
 ## 5. Training
 
 ### Basic Training
+- Remember you may need to start with: 
+```bash
+CUDA_VISIBLE_DEVICES=11
+```
 
 ```bash
 # Velocity tracking (most common starting point)
 uv run train Mjlab-Velocity-Flat-MicroDuck --env.scene.num-envs 4096
+
+# Waddle walking task ported from Open Duck Playground
+uv run train Mjlab-Velocity-Flat-Waddle --env.scene.num-envs 4096
 
 # Stand-up task
 uv run train Mjlab-StandUp-Flat-MicroDuck --env.scene.num-envs 4096
@@ -170,6 +179,7 @@ uv run train Mjlab-Imitation-Flat-MicroDuck --env.scene.num-envs 4096
 
 # Rough terrain variants
 uv run train Mjlab-Velocity-Rough-MicroDuck --env.scene.num-envs 4096
+uv run train Mjlab-Velocity-Rough-Waddle --env.scene.num-envs 4096
 ```
 
 > **First run:** The first training launch will take several minutes to compile Warp CUDA kernels. These are cached for subsequent runs.
